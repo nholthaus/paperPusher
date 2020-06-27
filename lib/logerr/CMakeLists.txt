@@ -84,7 +84,7 @@ if(GIT_FOUND)
 	set(APP_NAME ${GIT_REPO})
 	set(APP_VERSION ${GIT_TAG})
 
-	if(GIT_DIRTY)
+	if(NOT ${GIT_DIRTY} STREQUAL "")
 		set(GIT_DIRTY_STRING " (dirty)")
 		set(GIT_DIRTY_FLAG "yes")
 	else()
