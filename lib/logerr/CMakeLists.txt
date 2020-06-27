@@ -17,103 +17,17 @@ PROJECT(logerr)
 #	GIT SETTINGS
 #-------------------------------------------------------------------------------
 
-# Use git branch as project name if clones from git
-find_package(Git)
-if(GIT_FOUND)
-
-
-	add_custom_target(git ALL
-	  DEPENDS ${CMAKE_SOURCE_DIR}/.git/index)
-
-	execute_process(
-	  COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_BRANCH
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-	  COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_COMMIT_SHORT
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-	  COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_COMMIT_LONG
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-	  COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_TAG
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-	  COMMAND ${GIT_EXECUTABLE} config --get remote.origin.url
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_ORIGIN
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-	  COMMAND ${GIT_EXECUTABLE} rev-parse --show-toplevel
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_DIRECTORY
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-	  COMMAND basename ${GIT_DIRECTORY}
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_REPO
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-	  COMMAND ${GIT_EXECUTABLE} config --get user.name
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_USER
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-	  COMMAND ${GIT_EXECUTABLE} config --get user.email
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_EMAIL
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	execute_process(
-	  COMMAND ${GIT_EXECUTABLE} status --porcelain
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_DIRTY
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-
-	set(APP_NAME ${GIT_REPO})
-	set(APP_VERSION ${GIT_TAG})
-
-	if(${GIT_DIRTY} STREQUAL "")
-		set(GIT_DIRTY_STRING "")
-		set(GIT_DIRTY_FLAG "no")
-
-	else()
-		set(GIT_DIRTY_STRING " (dirty)")
-		set(GIT_DIRTY_FLAG "yes")
-	endif()
-
-	message(STATUS "REPO:          " ${GIT_REPO})
-	message(STATUS "BRANCH:        " ${GIT_BRANCH})
-	message(STATUS "LOCAL CHANGES: " ${GIT_DIRTY_FLAG})
-else()
-	set(GIT_BRANCH "N/A")
-	set(GIT_COMMIT_SHORT "N/A")
-	set(GIT_COMMIT_LONG "N/A")
-	set(GIT_TAG "N/A")
-	set(GIT_ORIGIN "N/A")
-	set(GIT_DIRECTORY "N/A")
-	set(GIT_REPO "N/A")
-	set(GIT_USER "N/A")
-	set(GIT_EMAIL "N/A")
-endif()
-
-
+# Add a custom command that produces version.cpp, plus
+# a dummy output that's not actually produced, in order
+# to force version.cmake to always be re-run before the build
+ADD_CUSTOM_TARGET(
+	gitInfo ALL
+	COMMAND ${CMAKE_COMMAND} -E copy
+			${CMAKE_CURRENT_SOURCE_DIR}/gitInfo.h.in
+			${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h.in
+    COMMAND ${CMAKE_COMMAND} -P
+            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gitInfo.cmake
+)
 
 #-------------------------------------------------------------------------------
 #	Qt SETTINGS
@@ -148,6 +62,7 @@ configure_file(appinfo.h.in appinfo.h @ONLY NEWLINE_STYLE UNIX)
 # .cpp files
 list(APPEND SOURCE_FILES
 appinfo.h.in
+${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h
 logerr.h
 logerr.cpp
 logerrMacros.h
@@ -184,3 +99,9 @@ target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 
 # include directories
 set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR})
+
+#-------------------------------------------------------------------------------
+#	ADDITIONAL DEPENDENCIES
+#-------------------------------------------------------------------------------
+
+add_dependencies(${PROJECT_NAME} gitInfo)
