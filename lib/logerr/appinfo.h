@@ -28,7 +28,6 @@
 #define appinfo_h__
 
 #include <QString>
-#include <QStandardPaths>
 #include <QDateTime>
 
 namespace APPINFO
@@ -62,7 +61,14 @@ namespace APPINFO
 	QString qtVersion();
 
 	// Runtime Host Info
-
+	QString hostCPUArchitecture();
+	QString hostKernelType();
+	QString hostKernelVersion();
+	QString hostName();
+	QString hostUniqueID();
+	QString hostPrettyProductName();
+	QString hostProductType();
+	QString hostProductVersion();
 
 	// Path Info
 	QString appDataDir();
@@ -74,6 +80,9 @@ namespace APPINFO
 
 	// Current Application Instance Info
 	QDateTime applicationStartTime();
+
+	// Full System Details
+	QString systemDetails();
 }
 
 #endif // appinfo_h__

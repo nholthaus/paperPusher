@@ -29,7 +29,8 @@
 
 #include <QString>
 
-namespace APPI{
+namespace logerr
+{
 	// Git Info
 	const QString gitBranch("@GIT_BRANCH@");
 	const QString gitCommitShort("@GIT_COMMIT_SHORT@");

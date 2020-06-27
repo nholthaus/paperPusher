@@ -47,7 +47,6 @@
 
 #include <QApplication>
 #include <StackTrace.h>
-#include <timestamp.h>
 #include <logerrMacros.h>
 
 #endif // logerr_h__

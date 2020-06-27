@@ -24,25 +24,25 @@
 // 
 //--------------------------------------------------------------------------------------------------
 
-#ifndef appinfo_h__
-#define appinfo_h__
+#include <appinfo.h>
+#include <gitInfo.h>
 
 #include <QString>
 #include <QStandardPaths>
 #include <QDateTime>
-#include <gitInfo.h>
+#include <QSysInfo>
 
-namespace APPINFO
+//--------------------------------------------------------------------------------------------------
+// CONSTANT STRINGS
+//--------------------------------------------------------------------------------------------------
+
+namespace logerr
 {
-	//--------------------------------------------------------------------------------------------------
-	// CONSTANT STRINGS
-	//--------------------------------------------------------------------------------------------------
-
 	// Application Info
 	const QString name(gitRepo);
 	const QString organization("@APPLICATION_ORGANIZATION@");
 	const QString oranizationDomain(gitOrigin);
-	const QString version(gitTag + gitCommitShort + gitDirty);
+	const QString version(gitTag + QString('.') + gitCommitShort + gitDirtyString);
 
 	// Build Host Info
 	const QString buildHostname("@BUILD_HOSTNAME@");
@@ -55,7 +55,14 @@ namespace APPINFO
 	const QString qtVersion("@QT_VERSION@");
 
 	// Runtime Host Info
-
+	const QString hostCPUArchitecture(QSysInfo::currentCpuArchitecture());
+	const QString hostKernelType(QSysInfo::kernelType());
+	const QString hostKernelVersion(QSysInfo::kernelVersion());
+	const QString hostName(QSysInfo::machineHostName());
+	const QString hostUniqueID(QSysInfo::machineUniqueId());
+	const QString hostPrettyProductName(QSysInfo::prettyProductName());
+	const QString hostProductType(QSysInfo::productType());
+	const QString hostProductVersion(QSysInfo::productVersion());
 
 	// Path Info
 	const QString appDataDir(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first());
@@ -68,51 +75,67 @@ namespace APPINFO
 	// Current Application Instance Info
 	const QDateTime applicationStartTime = QDateTime::currentDateTime();
 
-	//--------------------------------------------------------------------------------------------------
-	//	ACCESSOR FUNCTIONS
-	//--------------------------------------------------------------------------------------------------
-
-	// Application Info
-	QString name()						{ return name; };
-	QString organization()				{ return organization; };
-	QString oranizationDomain()			{ return oranizationDomain; };
-	QString version()					{ return version; };
-
-	// Git Info
-	QString gitBranch()					{ return gitBranch; };
-	QString gitCommitShort()			{ return gitCommitShort; };
-	QString gitCommitLong()				{ return gitCommitLong; };
-	QString gitTag()					{ return gitTag; };
-	QString gitDirty()					{ return gitDirty; };
-	QString gitOrigin()					{ return gitOrigin; };
-	QString gitDirectory()				{ return gitDirectory; };
-	QString gitRepo()					{ return gitRepo; };
-	QString gitUser()					{ return gitUser; };
-	QString gitEmail()					{ return gitEmail; };
-
-	// Build Host Info
-	QString buildHostname()				{ return buildHostname; };
-	QString buildOSName()				{ return buildOSName; };
-	QString buildOSVersion()			{ return buildOSVersion; };
-	QString buildOSProcessor()			{ return buildOSProcessor; };
-	QString cmakeVersion()				{ return cmakeVersion; };
-	QString compilerName()				{ return compilerName; };
-	QString compilerVersion()			{ return compilerVersion; };
-	QString qtVersion()					{ return qtVersion; };
-
-	// Runtime Host Info
-
-
-	// Path Info
-	QString appDataDir()				{ return appDataDir; };
-	QString logDir()					{ return logDir; };
-	QString crashDumpDir()				{ return crashDumpDir; };
-	QString documentsDir()				{ return documentsDir; };
-	QString tempDir()					{ return tempDir; };
-	QString configDir()					{ return configDir; };
-
-	// Current Application Instance Info
-	QDateTime applicationStartTime()	{ return applicationStartTime; };
+	const QString systemDetails = QString("[APPLICATION INFO]\n")
+									.append("    ").append(name).append('\n')
+									.append("    ").append(orgranization).append('\n')
+									.append("    ").append(oranizationDomain).append('\n')
+									.append("    ").append(version).append('\n')
+									.append('\n')
+									.append([VERSION INFO]);
 }
 
-#endif // appinfo_h__
+//--------------------------------------------------------------------------------------------------
+//	ACCESSOR FUNCTIONS
+//--------------------------------------------------------------------------------------------------
+
+// Application Info
+QString APPINFO::name()						{ return logerr::name; };
+QString APPINFO::organization()				{ return logerr::organization; };
+QString APPINFO::oranizationDomain()		{ return logerr::oranizationDomain; };
+QString APPINFO::version()					{ return logerr::version; };
+
+// Git Info
+QString APPINFO::gitBranch()				{ return logerr::gitBranch; };
+QString APPINFO::gitCommitShort()			{ return logerr::gitCommitShort; };
+QString APPINFO::gitCommitLong()			{ return logerr::gitCommitLong; };
+QString APPINFO::gitTag()					{ return logerr::gitTag; };
+QString APPINFO::gitDirty()					{ return logerr::gitDirty; };
+QString APPINFO::gitOrigin()				{ return logerr::gitOrigin; };
+QString APPINFO::gitDirectory()				{ return logerr::gitDirectory; };
+QString APPINFO::gitRepo()					{ return logerr::gitRepo; };
+QString APPINFO::gitUser()					{ return logerr::gitUser; };
+QString APPINFO::gitEmail()					{ return logerr::gitEmail; };
+
+// Build Host Info
+QString APPINFO::buildHostname()			{ return logerr::buildHostname; };
+QString APPINFO::buildOSName()				{ return logerr::buildOSName; };
+QString APPINFO::buildOSVersion()			{ return logerr::buildOSVersion; };
+QString APPINFO::buildOSProcessor()			{ return logerr::buildOSProcessor; };
+QString APPINFO::cmakeVersion()				{ return logerr::cmakeVersion; };
+QString APPINFO::compilerName()				{ return logerr::compilerName; };
+QString APPINFO::compilerVersion()			{ return logerr::compilerVersion; };
+QString APPINFO::qtVersion()				{ return logerr::qtVersion; };
+
+// Runtime Host Info
+QString APPINFO::hostCPUArchitecture()		{ return logerr::hostCPUArchitecture; };
+QString APPINFO::hostKernelType()			{ return logerr::hostKernelType; };
+QString APPINFO::hostKernelVersion()		{ return logerr::hostKernelVersion; };
+QString APPINFO::hostName()					{ return logerr::hostName; };
+QString APPINFO::hostUniqueID()				{ return logerr::hostUniqueID; };
+QString APPINFO::hostPrettyProductName()	{ return logerr::hostPrettyProductName; };
+QString APPINFO::hostProductType()			{ return logerr::hostProductType; };
+QString APPINFO::hostProductVersion()		{ return logerr::hostProductVersion; };
+
+// Path Info
+QString APPINFO::appDataDir()				{ return logerr::appDataDir; };
+QString APPINFO::logDir()					{ return logerr::logDir; };
+QString APPINFO::crashDumpDir()				{ return logerr::crashDumpDir; };
+QString APPINFO::documentsDir()				{ return logerr::documentsDir; };
+QString APPINFO::tempDir()					{ return logerr::tempDir; };
+QString APPINFO::configDir()				{ return logerr::configDir; };
+
+// Current Application Instance Info
+QDateTime APPINFO::applicationStartTime()	{ return logerr::applicationStartTime; };
+
+// Full System Details
+QString APPINFO::systemDetails()	{ return logerr::systemDetails; };

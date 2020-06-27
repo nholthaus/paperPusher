@@ -45,7 +45,7 @@ list(REMOVE_DUPLICATES LIBRARIES)
 include_directories(${INCLUDE_DIRS})
 
 # Generate the executable
-add_executable(${PROJECT_NAME} ${GUI_TYPE} ${SOURCE_FILES} ${RESOURCES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${RESOURCES}) #${GUI_TYPE}
 
 # link libraries
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})

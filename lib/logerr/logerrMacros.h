@@ -46,6 +46,8 @@
 //-------------------------
 
 #include <iostream>
+#include <appinfo.h>
+#include <StackTraceSIGSEGV.h>
 
 //-------------------------
 //	HELPER FUNCTIONS
@@ -54,32 +56,20 @@
 namespace logerr
 {
 	template<class T>
-	constexpr const char* printable(const T& value)
+	constexpr std::string printable(const T& value)
 	{
-		if constexpr (std::is_same_v<QString, T>) return value.toLocal8bit();
-		else if constexpr (std::is_same_v<std::string, T>) return value.data();
-		else if constexpr (std::is_same_v<char*, std::remove_cv_t<T>>) return value;
-		else if constexpr (std::is_convertible_v<const char*, std::remove_cv_t<T>>) return static_cast<const char*>(value);
-		else if constexpr (std::is_convertible_v<std::string, std::remove_cv_t<T>>) return std::string(value).data();
+		if constexpr (std::is_same_v<QString, std::remove_cv_t<T>>) 
+			return value.toStdString();
+		else if constexpr (std::is_same_v<std::string, std::remove_cv_t<T>>) return value;
+//		else if constexpr (std::is_same_v<char*, std::remove_cv_t<T>>) return value;
+//		else if constexpr (std::is_convertible_v<const char*, std::remove_cv_t<T>>) return static_cast<const char*>(value);
+//		else if constexpr (std::is_convertible_v<std::string, std::remove_cv_t<T>>) return std::string(value).data();
 	}
 }
 
 //-------------------------
 //	MACROS
 //-------------------------
-
-// MAIN
-#ifndef MAIN
-#define MAIN \
-int main(int argc, char* argv[]) \
-{
-#endif
-
-// END_MAIN
-#ifndef END_MAIN
-#define END_MAIN \
-}
-#endif
 
 // LOG FUNCTIONS
 #ifndef LOGERR
@@ -93,6 +83,22 @@ int main(int argc, char* argv[]) \
 #endif
 #ifndef LOGINFO
 #define LOGINFO		std::cout << "[INFO]     "
+#endif
+
+// MAIN
+#ifndef MAIN
+#define MAIN \
+int main(int argc, char* argv[]) \
+{\
+	std::signal(SIGSEGV, stackTraceSIGSEGV);\
+	LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started" << std::endl;
+#endif
+
+// END_MAIN
+#ifndef END_MAIN
+#define END_MAIN \
+	LOGINFO << logerr::printable(APPINFO::name()) << " Exited Successfully" << std::endl;\
+}
 #endif
 
 #endif // logerrMacros_h__

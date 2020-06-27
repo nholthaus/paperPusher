@@ -1,10 +1,16 @@
 #include <logerr.h>
 #include <QDebug>
 
+void generateTrace()
+{
+	StackTrace trace(7);
+	QString details = QString("Crashed!") + trace;
+	LOGINFO << details.toStdString() << std::endl;
+}
+
 MAIN
 {
-	QString trace = StackTrace();
-LOGINFO("Hello, World!");
-	qDebug() << trace;
+	LOGINFO << APPINFO::buildHostname().toStdString() << std::endl;
+	CrashAndBurn();
 }
 END_MAIN

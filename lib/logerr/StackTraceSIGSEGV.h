@@ -42,6 +42,12 @@
 #define StackTraceSigSev_h__
 
 //-------------------------
+//	INCLUDES
+//-------------------------
+
+#include <csignal>
+
+//-------------------------
 //	FORWARD DECLARATIONS
 //-------------------------
 
@@ -52,7 +58,7 @@ class QString;
 //--------------------------------------------------------------------------------------------------
 
 // Provides a c++ signal handler that will generate a stack trace upon crashing
-void stackTraceSigSev(int sig);
+void stackTraceSIGSEGV(int sig);
 
 // This function intentionally crashes the program, 
 // for test purposes.

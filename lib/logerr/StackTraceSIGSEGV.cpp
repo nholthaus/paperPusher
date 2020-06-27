@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 //	stackTraceSigSev (public ) [static ]
 //--------------------------------------------------------------------------------------------------
-void stackTraceSigSev(int sig)
+void stackTraceSIGSEGV(int sig)
 {
 	// Gather the details
 #ifdef _MSC_VER
@@ -22,7 +22,7 @@ void stackTraceSigSev(int sig)
 	time += "    Crash Time   : " + QDateTime::currentDateTime().toString() + "\n";
 	time += "\n";
 
-	QString sDetails = QString("%1 Crashed! :'(").arg(APPINFO::name()) + time + SystemDetails() + QString("STACK TRACE:\n\n") + trace;
+	QString sDetails = QString("%1 Crashed! :'(").arg(APPINFO::name()) + time + APPINFO::systemDetails() + QString("STACK TRACE:\n\n") + trace;
 	LOGERR << sDetails.toLocal8Bit().constData() << std::endl;
 
 	// make sure the directory exists

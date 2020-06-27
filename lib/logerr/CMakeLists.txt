@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.17)
 set(QT_MINIMUM_VERSION 5.15.0)
 
 cmake_host_system_information(RESULT BUILD_HOSTNAME QUERY HOSTNAME)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 #-------------------------------------------------------------------------------
 #	PROJECT SETTINGS
@@ -62,16 +63,16 @@ configure_file(appinfo.cpp.in appinfo.cpp @ONLY NEWLINE_STYLE UNIX)
 # .cpp files
 list(APPEND SOURCE_FILES
 appinfo.h
-appinfo.cpp
-gitInfo.h
+${CMAKE_CURRENT_BINARY_DIR}/appinfo.cpp
+${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h
 logerr.h
 logerr.cpp
 logerrMacros.h
 logerrMacros.cpp
 StackTrace.h
 StackTrace.cpp
-StackTraceSigSev.h
-StackTraceSigSev.cpp
+StackTraceSIGSEGV.h
+StackTraceSIGSEGV.cpp
 )
 
 #-------------------------------------------------------------------------------
@@ -99,7 +100,7 @@ add_library(${PROJECT_NAME} ${SOURCE_FILES} ${RESOURCES})
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 
 # include directories
-set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR})
+set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_BINARY_DIR}")
 
 #-------------------------------------------------------------------------------
 #	ADDITIONAL DEPENDENCIES
