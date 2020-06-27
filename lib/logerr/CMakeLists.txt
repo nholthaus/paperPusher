@@ -60,20 +60,26 @@ configure_file(appinfo.cpp.in appinfo.cpp @ONLY NEWLINE_STYLE UNIX)
 #	SOURCE CODE
 #-------------------------------------------------------------------------------
 
+# .h files
+list(APPEND HEADER_FILES
+	include/appinfo.h
+	include/logerr.h
+	include/logerrMacros.h
+	include/StackTrace.h
+	include/StackTraceSIGSEGV.h
+	${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h
+)
+
 # .cpp files
 list(APPEND SOURCE_FILES
-appinfo.h
-${CMAKE_CURRENT_BINARY_DIR}/appinfo.cpp
-${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h
-logerr.h
-logerr.cpp
-logerrMacros.h
-logerrMacros.cpp
-StackTrace.h
-StackTrace.cpp
-StackTraceSIGSEGV.h
-StackTraceSIGSEGV.cpp
+	src/StackTrace.cpp
+	src/StackTraceSIGSEGV.cpp
+	${CMAKE_CURRENT_BINARY_DIR}/appinfo.cpp
 )
+
+if(WIN_32) 
+	list(APPEND SOURCE_FILES HEADER_FILES)
+endif()
 
 #-------------------------------------------------------------------------------
 #	ADDITIONAL LIBRARIES
@@ -93,6 +99,9 @@ list(REMOVE_DUPLICATES LIBRARIES)
 #	GENERATE EXECUTABLE
 #-------------------------------------------------------------------------------
 
+# include dirs
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+
 # Generate the executable
 add_library(${PROJECT_NAME} ${SOURCE_FILES} ${RESOURCES})
 
@@ -100,7 +109,7 @@ add_library(${PROJECT_NAME} ${SOURCE_FILES} ${RESOURCES})
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 
 # include directories
-set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_BINARY_DIR}")
+set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR}")
 
 #-------------------------------------------------------------------------------
 #	ADDITIONAL DEPENDENCIES

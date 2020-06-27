@@ -41,7 +41,7 @@ namespace logerr
 	// Application Info
 	const QString name(gitRepo);
 	const QString organization("@APPLICATION_ORGANIZATION@");
-	const QString oranizationDomain(gitOrigin);
+	const QString organizationDomain(gitOrigin);
 	const QString version(gitTag + QString('.') + gitCommitShort + gitDirtyString);
 
 	// Build Host Info
@@ -75,13 +75,44 @@ namespace logerr
 	// Current Application Instance Info
 	const QDateTime applicationStartTime = QDateTime::currentDateTime();
 
-	const QString systemDetails = QString("[APPLICATION INFO]\n")
-									.append("    ").append(name).append('\n')
-									.append("    ").append(orgranization).append('\n')
-									.append("    ").append(oranizationDomain).append('\n')
-									.append("    ").append(version).append('\n')
+	const QString systemDetails = QString("APPLICATION INFO:\n\n")
+									.append("    ").append("Application Name:        ").append(name).append('\n')
+									.append("    ").append("Application Creator:     ").append(organization).append('\n')
+									.append("    ").append("Appliation URL:          ").append(organizationDomain).append('\n')
+									.append("    ").append("Application Version:     ").append(version).append('\n')
 									.append('\n')
-									.append([VERSION INFO]);
+									.append("VERSION INFO:\n\n")
+									.append("    ").append("Git Origin:              ").append(gitOrigin).append('\n')
+									.append("    ").append("Git Repository:          ").append(gitRepo).append('\n')
+									.append("    ").append("Git Branch:              ").append(gitBranch).append('\n')
+									.append("    ").append("Git Commit:              ").append(gitCommitLong).append('\n')
+									.append("    ").append("Local Changes (dirty):   ").append(gitDirty).append('\n')
+									.append("    ").append("Git Tag:                 ").append(gitTag).append('\n')
+									.append("    ").append("Git Commit (short):      ").append(gitCommitShort).append('\n')
+									.append("    ").append("Git Directory:           ").append(gitDirectory).append('\n')
+									.append("    ").append("Git User:                ").append(gitUser).append('\n')
+									.append("    ").append("Git Email:               ").append(gitEmail).append('\n')
+									.append('\n')
+									.append("BUILD INFO:\n\n")
+									.append("    ").append("Build Hostname:          ").append(buildHostname).append('\n')
+									.append("    ").append("Build OS:                ").append(buildOSName).append('\n')
+									.append("    ").append("Build OS Version:        ").append(buildOSVersion).append('\n')
+									.append("    ").append("Build Processor:         ").append(buildOSProcessor).append('\n')
+									.append("    ").append("Compiler Name:           ").append(compilerName).append('\n')
+									.append("    ").append("Compiler Version:        ").append(compilerVersion).append('\n')
+									.append("    ").append("CMake Version:           ").append(cmakeVersion).append('\n')
+									.append("    ").append("Qt Version:              ").append(qtVersion).append('\n')
+									.append('\n')
+									.append("HOST INFO:\n\n")
+									.append("    ").append("Host Name:               ").append(hostName).append('\n')
+									.append("    ").append("Host Unique ID:          ").append(hostUniqueID).append('\n')
+									.append("    ").append("Host Kernel Type:        ").append(hostKernelType).append('\n')
+									.append("    ").append("Host Kernel Version:     ").append(hostKernelVersion).append('\n')
+									.append("    ").append("Host CPU Arch:           ").append(hostCPUArchitecture).append('\n')
+									.append("    ").append("Host OS Name:            ").append(hostPrettyProductName).append('\n')
+									.append("    ").append("Host OS Type:            ").append(hostProductType).append('\n')
+									.append("    ").append("Host OS Version:         ").append(hostProductVersion).append('\n')
+									.append('\n');
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +122,7 @@ namespace logerr
 // Application Info
 QString APPINFO::name()						{ return logerr::name; };
 QString APPINFO::organization()				{ return logerr::organization; };
-QString APPINFO::oranizationDomain()		{ return logerr::oranizationDomain; };
+QString APPINFO::organizationDomain()		{ return logerr::organizationDomain; };
 QString APPINFO::version()					{ return logerr::version; };
 
 // Git Info

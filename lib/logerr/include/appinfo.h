@@ -35,7 +35,7 @@ namespace APPINFO
 	// Application Info
 	QString name();
 	QString organization();
-	QString oranizationDomain();
+	QString organizationDomain();
 	QString version();
 
 	// Git Info
