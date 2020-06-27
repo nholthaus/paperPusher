@@ -84,12 +84,13 @@ if(GIT_FOUND)
 	set(APP_NAME ${GIT_REPO})
 	set(APP_VERSION ${GIT_TAG})
 
-	if(NOT ${GIT_DIRTY} STREQUAL "")
-		set(GIT_DIRTY_STRING " (dirty)")
-		set(GIT_DIRTY_FLAG "yes")
-	else()
+	if(${GIT_DIRTY} STREQUAL "")
 		set(GIT_DIRTY_STRING "")
 		set(GIT_DIRTY_FLAG "no")
+
+	else()
+		set(GIT_DIRTY_STRING " (dirty)")
+		set(GIT_DIRTY_FLAG "yes")
 	endif()
 
 	message(STATUS "REPO:          " ${GIT_REPO})
