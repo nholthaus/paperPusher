@@ -53,7 +53,7 @@ set(APPLICATION_VERSION ${VERSION})
 set(APPLICATION_ORGANIZATION "Menari Softworks")
 set(APPLICATION_ORGANIZATION_DOMAIN ${GIT_ORIGIN})
 
-configure_file(appinfo.h.in appinfo.h @ONLY NEWLINE_STYLE UNIX)
+configure_file(appinfo.cpp.in appinfo.cpp @ONLY NEWLINE_STYLE UNIX)
 
 #-------------------------------------------------------------------------------
 #	SOURCE CODE
@@ -61,8 +61,9 @@ configure_file(appinfo.h.in appinfo.h @ONLY NEWLINE_STYLE UNIX)
 
 # .cpp files
 list(APPEND SOURCE_FILES
-appinfo.h.in
-${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h
+appinfo.h
+appinfo.cpp
+gitInfo.h
 logerr.h
 logerr.cpp
 logerrMacros.h
