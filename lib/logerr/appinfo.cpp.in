@@ -1,0 +1,118 @@
+//--------------------------------------------------------------------------------------------------
+// 
+///	@PROJECT	@APPLICATION_NAME@
+/// @BRIEF		application information
+///	@DETAILS	
+//
+//--------------------------------------------------------------------------------------------------
+//
+// ATTRIBUTION:
+// Parts of this work have been adapted from: 
+//
+//--------------------------------------------------------------------------------------------------
+// 
+// Copyright (c) 2020 Nic Holthaus. All Rights Reserved.
+// 
+//--------------------------------------------------------------------------------------------------
+//
+//	XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//	XXXX																						XXXX
+//	XXXX						WARNING: THIS IS A GENERATED FILE								XXXX
+//	XXXX						ABANDON ALL HOPE YE WHO EDIT HERE								XXXX
+//	XXXX																						XXXX
+//	XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX	
+// 
+//--------------------------------------------------------------------------------------------------
+
+#ifndef appinfo_h__
+#define appinfo_h__
+
+#include <QString>
+#include <QStandardPaths>
+#include <QDateTime>
+#include <gitInfo.h>
+
+namespace APPINFO
+{
+	//--------------------------------------------------------------------------------------------------
+	// CONSTANT STRINGS
+	//--------------------------------------------------------------------------------------------------
+
+	// Application Info
+	const QString name(gitRepo);
+	const QString organization("@APPLICATION_ORGANIZATION@");
+	const QString oranizationDomain(gitOrigin);
+	const QString version(gitTag + gitCommitShort + gitDirty);
+
+	// Build Host Info
+	const QString buildHostname("@BUILD_HOSTNAME@");
+	const QString buildOSName("@CMAKE_HOST_SYSTEM_NAME@");
+	const QString buildOSVersion("@CMAKE_HOST_SYSTEM_VERSION@");
+	const QString buildOSProcessor("@CMAKE_HOST_SYSTEM_PROCESSOR@");
+	const QString cmakeVersion("@CMAKE_VERSION@");
+	const QString compilerName("@CMAKE_CXX_COMPILER_ID@");
+	const QString compilerVersion("@CMAKE_CXX_COMPILER_VERSION@");
+	const QString qtVersion("@QT_VERSION@");
+
+	// Runtime Host Info
+
+
+	// Path Info
+	const QString appDataDir(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first());
+	const QString logDir(appDataDir + "/logs/");
+	const QString crashDumpDir(appDataDir + "/crashdumps/");
+	const QString documentsDir(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first());
+	const QString tempDir(QStandardPaths::standardLocations(QStandardPaths::TempLocation).first());
+	const QString configDir(QStandardPaths::standardLocations(QStandardPaths::ConfigLocation).first());
+
+	// Current Application Instance Info
+	const QDateTime applicationStartTime = QDateTime::currentDateTime();
+
+	//--------------------------------------------------------------------------------------------------
+	//	ACCESSOR FUNCTIONS
+	//--------------------------------------------------------------------------------------------------
+
+	// Application Info
+	QString name()						{ return name; };
+	QString organization()				{ return organization; };
+	QString oranizationDomain()			{ return oranizationDomain; };
+	QString version()					{ return version; };
+
+	// Git Info
+	QString gitBranch()					{ return gitBranch; };
+	QString gitCommitShort()			{ return gitCommitShort; };
+	QString gitCommitLong()				{ return gitCommitLong; };
+	QString gitTag()					{ return gitTag; };
+	QString gitDirty()					{ return gitDirty; };
+	QString gitOrigin()					{ return gitOrigin; };
+	QString gitDirectory()				{ return gitDirectory; };
+	QString gitRepo()					{ return gitRepo; };
+	QString gitUser()					{ return gitUser; };
+	QString gitEmail()					{ return gitEmail; };
+
+	// Build Host Info
+	QString buildHostname()				{ return buildHostname; };
+	QString buildOSName()				{ return buildOSName; };
+	QString buildOSVersion()			{ return buildOSVersion; };
+	QString buildOSProcessor()			{ return buildOSProcessor; };
+	QString cmakeVersion()				{ return cmakeVersion; };
+	QString compilerName()				{ return compilerName; };
+	QString compilerVersion()			{ return compilerVersion; };
+	QString qtVersion()					{ return qtVersion; };
+
+	// Runtime Host Info
+
+
+	// Path Info
+	QString appDataDir()				{ return appDataDir; };
+	QString logDir()					{ return logDir; };
+	QString crashDumpDir()				{ return crashDumpDir; };
+	QString documentsDir()				{ return documentsDir; };
+	QString tempDir()					{ return tempDir; };
+	QString configDir()					{ return configDir; };
+
+	// Current Application Instance Info
+	QDateTime applicationStartTime()	{ return applicationStartTime; };
+}
+
+#endif // appinfo_h__
