@@ -77,16 +77,24 @@ if(GIT_FOUND)
 	execute_process(
 	  COMMAND ${GIT_EXECUTABLE} status --porcelain
 	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_LOCAL_CHANGES
+	  OUTPUT_VARIABLE GIT_DIRTY
 	  OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
 
 	set(APP_NAME ${GIT_REPO})
 	set(APP_VERSION ${GIT_TAG})
 
+	if(GIT_DIRTY)
+		set(GIT_DIRTY_STRING " (dirty)")
+		set(GIT_DIRTY_FLAG "yes")
+	else()
+		set(GIT_DIRTY_STRING "")
+		set(GIT_DIRTY_FLAG "no")
+	endif()
+
 	message(STATUS "REPO:          " ${GIT_REPO})
 	message(STATUS "BRANCH:        " ${GIT_BRANCH})
-	message(STATUS "LOCAL CHANGES: " ${GIT_LOCAL_CHANGES})
+	message(STATUS "LOCAL CHANGES: " ${GIT_DIRTY_FLAG})
 else()
 	set(GIT_BRANCH "N/A")
 	set(GIT_COMMIT_SHORT "N/A")
