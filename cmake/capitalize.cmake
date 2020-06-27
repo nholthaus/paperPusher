@@ -1,0 +1,5 @@
+function(capitalize value)
+	string(SUBSTRING ${value} 0 1 FIRST_LETTER)
+	string(TOUPPER ${FIRST_LETTER} FIRST_LETTER)
+	string(REGEX REPLACE "^.(.*)" "${FIRST_LETTER}\\1" value "${value}")
+endfunction()
