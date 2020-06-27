@@ -44,7 +44,7 @@ namespace APPINFO
 	const QString gitCommitShort("@GIT_COMMIT_SHORT@");
 	const QString gitCommitLong("@GIT_COMMIT_LONG@");
 	const QString gitTag("@GIT_TAG@");
-	const QString gitDirty("@GIT_DIRTY_FLAG@")
+	const QString gitDirty("@GIT_DIRTY_FLAG@");
 	const QString gitOrigin("@GIT_ORIGIN@");
 	const QString gitDirectory("@GIT_DIRECTORY@");
 	const QString gitRepo("@GIT_REPO@");
