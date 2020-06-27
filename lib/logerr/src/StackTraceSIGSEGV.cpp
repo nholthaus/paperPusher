@@ -27,7 +27,8 @@ void stackTraceSIGSEGV(int sig)
 
 	// make sure the directory exists
 	QDir dir;
-	dir.mkdir(APPINFO::crashDumpDir());
+	dir.mkpath(APPINFO::crashDumpDir());
+	LOGINFO << APPINFO::crashDumpDir().toStdString() << std::endl;
 
 	QString crashdumpFileName = QString("crashdump-") + QDateTime::currentDateTime().toString(Qt::ISODate).remove(':') + ".txt";
 	if (!qApp->applicationName().isEmpty())

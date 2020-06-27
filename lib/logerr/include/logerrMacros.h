@@ -90,8 +90,16 @@ namespace logerr
 #define MAIN \
 int main(int argc, char* argv[]) \
 {\
+	LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started" << std::endl;\
 	std::signal(SIGSEGV, stackTraceSIGSEGV);\
-	LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started" << std::endl;
+	\
+	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);\
+	\
+	QApplication app(argc,argv);\
+	app.setOrganizationName(APPINFO::organization());\
+	app.setOrganizationDomain(APPINFO::organizationDomain());\
+	app.setApplicationName(APPINFO::name());\
+	app.setApplicationVersion(APPINFO::version());
 #endif
 
 // END_MAIN

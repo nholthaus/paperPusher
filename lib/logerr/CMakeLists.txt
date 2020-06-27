@@ -77,8 +77,8 @@ list(APPEND SOURCE_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/appinfo.cpp
 )
 
-if(WIN_32) 
-	list(APPEND SOURCE_FILES HEADER_FILES)
+if(MSVC) 
+	list(APPEND SOURCE_FILES ${HEADER_FILES})
 endif()
 
 #-------------------------------------------------------------------------------

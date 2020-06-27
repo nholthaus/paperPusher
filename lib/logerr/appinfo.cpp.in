@@ -64,14 +64,6 @@ namespace logerr
 	const QString hostProductType(QSysInfo::productType());
 	const QString hostProductVersion(QSysInfo::productVersion());
 
-	// Path Info
-	const QString appDataDir(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first());
-	const QString logDir(appDataDir + "/logs/");
-	const QString crashDumpDir(appDataDir + "/crashdumps/");
-	const QString documentsDir(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first());
-	const QString tempDir(QStandardPaths::standardLocations(QStandardPaths::TempLocation).first());
-	const QString configDir(QStandardPaths::standardLocations(QStandardPaths::ConfigLocation).first());
-
 	// Current Application Instance Info
 	const QDateTime applicationStartTime = QDateTime::currentDateTime();
 
@@ -158,12 +150,12 @@ QString APPINFO::hostProductType()			{ return logerr::hostProductType; };
 QString APPINFO::hostProductVersion()		{ return logerr::hostProductVersion; };
 
 // Path Info
-QString APPINFO::appDataDir()				{ return logerr::appDataDir; };
-QString APPINFO::logDir()					{ return logerr::logDir; };
-QString APPINFO::crashDumpDir()				{ return logerr::crashDumpDir; };
-QString APPINFO::documentsDir()				{ return logerr::documentsDir; };
-QString APPINFO::tempDir()					{ return logerr::tempDir; };
-QString APPINFO::configDir()				{ return logerr::configDir; };
+QString APPINFO::appDataDir()				{ return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first(); };
+QString APPINFO::logDir()					{ return appDataDir() + "/logs/"; };
+QString APPINFO::crashDumpDir()				{ return appDataDir() + "/crashdumps/"; };
+QString APPINFO::documentsDir()				{ return QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first(); };
+QString APPINFO::tempDir()					{ return QStandardPaths::standardLocations(QStandardPaths::TempLocation).first(); };
+QString APPINFO::configDir()				{ return QStandardPaths::standardLocations(QStandardPaths::ConfigLocation).first(); };
 
 // Current Application Instance Info
 QDateTime APPINFO::applicationStartTime()	{ return logerr::applicationStartTime; };
