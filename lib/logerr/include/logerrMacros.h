@@ -46,8 +46,19 @@
 //-------------------------
 
 #include <iostream>
+#include <thread>
+#include <exception>
 #include <appinfo.h>
+#include <Application.h>
+#include <StackTraceException.h>
 #include <StackTraceSIGSEGV.h>
+
+//------------------------------
+//	GLOBALS
+//------------------------------
+
+static std::exception_ptr g_exceptionPtr = nullptr;
+static std::thread::id g_mainThreadID;
 
 //-------------------------
 //	HELPER FUNCTIONS
@@ -58,12 +69,8 @@ namespace logerr
 	template<class T>
 	constexpr std::string printable(const T& value)
 	{
-		if constexpr (std::is_same_v<QString, std::remove_cv_t<T>>) 
-			return value.toStdString();
+		if constexpr (std::is_same_v<QString, std::remove_cv_t<T>>) return value.toStdString();
 		else if constexpr (std::is_same_v<std::string, std::remove_cv_t<T>>) return value;
-//		else if constexpr (std::is_same_v<char*, std::remove_cv_t<T>>) return value;
-//		else if constexpr (std::is_convertible_v<const char*, std::remove_cv_t<T>>) return static_cast<const char*>(value);
-//		else if constexpr (std::is_convertible_v<std::string, std::remove_cv_t<T>>) return std::string(value).data();
 	}
 }
 
@@ -85,27 +92,82 @@ namespace logerr
 #define LOGINFO		std::cout << "[INFO]     "
 #endif
 
+// filename
+#ifndef  __FILENAME__
+#define __FILENAME__ strrchr("\\" __FILE__, '\\') + 1
+#endif 
+
+// errors
+#ifndef ERR
+#define ERR(msg) std::this_thread::get_id() == g_mainThreadID ? throw StackTraceException(msg, __FILENAME__, __LINE__) : g_exceptionPtr = std::make_exception_ptr(StackTraceException(msg, __FILENAME__, __LINE__))
+#endif
+
+#ifndef FATAL_ERR
+#define FATAL_ERR(msg) std::this_thread::get_id() == g_mainThreadID ? throw StackTraceException(msg, __FILENAME__, __LINE__, true) : g_exceptionPtr = std::make_exception_ptr(StackTraceException(msg, __FILENAME__, __LINE__, true))
+#endif
+
+// verify
+#ifndef VERIFY
+#define VERIFY(condition) ((!(condition)) ? qt_assert(#condition, __FILENAME__, __LINE__) : qt_noop())
+#endif
+
+// TODO
+#define __STR2__(x) #x
+#define __STR1__(x) __STR2__(x)
+#define __LOC__ __FILE__ "(" __STR1__(__LINE__) "): TODO - "
+
+#ifdef Q_OS_WIN
+#define TODO(x) __pragma(message(__LOC__ x))
+#else
+#define TODO(x)
+#endif
+
 // MAIN
 #ifndef MAIN
 #define MAIN \
 int main(int argc, char* argv[]) \
-{\
-	LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started" << std::endl;\
-	std::signal(SIGSEGV, stackTraceSIGSEGV);\
-	\
-	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);\
-	\
-	QApplication app(argc,argv);\
-	app.setOrganizationName(APPINFO::organization());\
-	app.setOrganizationDomain(APPINFO::organizationDomain());\
-	app.setApplicationName(APPINFO::name());\
-	app.setApplicationVersion(APPINFO::version());
+{ \
+	try \
+	{ \
+		LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started." << std::endl; \
+		std::signal(SIGSEGV, stackTraceSIGSEGV); \
+		\
+		g_mainThreadID = std::this_thread::get_id(); \
+		\
+		QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); \
+		\
+		Application app(argc,argv); \
+		app.setOrganizationName(APPINFO::organization()); \
+		app.setOrganizationDomain(APPINFO::organizationDomain()); \
+ 		app.setApplicationName(APPINFO::name()); \
+ 		app.setApplicationVersion(APPINFO::version());
 #endif
 
 // END_MAIN
 #ifndef END_MAIN
 #define END_MAIN \
+	} \
+	catch(StackTraceException& e) \
+	{ \
+		LOGERR << e.what() << std::endl; \
+		LOGINFO << logerr::printable(APPINFO::name()) << " exiting due to fatal error..." << std::endl;  \
+		std::exit(2); \
+	} \
+	catch(std::exception& e) \
+	{ \
+		LOGERR << "ERROR: " << e.what() << std::endl; \
+		LOGINFO << logerr::printable(APPINFO::name()) << " exiting due to fatal error..." << std::endl;  \
+		std::exit(2); \
+	} \
+	catch(...) \
+	{ \
+		LOGERR << "ERROR: An unknown fatal error occured. " << std::endl; \
+		LOGINFO << logerr::printable(APPINFO::name()) << " exiting due to fatal error..." << std::endl;  \
+		std::exit(2); \
+	} \
+	\
 	LOGINFO << logerr::printable(APPINFO::name()) << " Exited Successfully" << std::endl;\
+	return 0; \
 }
 #endif
 

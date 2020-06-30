@@ -32,31 +32,54 @@
 //
 //--------------------------------------------------------------------------------------------------
 //
-/// @file	StackTraceSigSev.h
-/// @brief	
+/// @file	StackTraceException.h
+/// @brief	Exception that generates a stack trace of where it occurred
 //
 //--------------------------------------------------------------------------------------------------
 
 #pragma once
-#ifndef StackTraceSigSev_h__
-#define StackTraceSigSev_h__
+#ifndef StackTraceException_h__
+#define StackTraceException_h__
 
 //-------------------------
 //	INCLUDES
 //-------------------------
 
-#include <csignal>
+#include <exception> 
+#include <StackTrace.h>
+#include <QString>
+
+//-------------------------
+//	FORWARD DECLARATIONS
+//-------------------------
 
 //--------------------------------------------------------------------------------------------------
-//	FUNCTIONS
+//	StackTraceException
 //--------------------------------------------------------------------------------------------------
+// Don't create these raw... use the ERR() macro
+class StackTraceException : public std::exception
+{
+public:
 
-// Provides a c++ signal handler that will generate a stack trace upon crashing
-void stackTraceSIGSEGV(int sig);
+	StackTraceException(QString errorMessage, QString filename, size_t line, bool fatal = false);
+	
+	virtual char const* what() const override;
 
-// This function intentionally crashes the program, 
-// for test purposes.
-void CrashAndBurn();
+	QString filename() const;
+	QString errorMessage() const;
+	size_t line() const;
+	QString trace() const;
+	bool fatal() const;
 
-#endif // StackTraceSigSev_h__
+private:
 
+	QString		m_errorMessage;
+	QString		m_fileName;
+	size_t		m_line;
+	QString		m_what;
+	StackTrace	m_trace;
+	bool		m_fatal;
+
+};
+
+#endif // StackTraceException_h__

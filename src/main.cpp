@@ -1,7 +1,14 @@
 #include <logerr.h>
 
+void fail()
+{
+
+}
+
 MAIN
 {
-	CrashAndBurn();
+	fail();
+int i;
+std::cin >> i;
 }
 END_MAIN

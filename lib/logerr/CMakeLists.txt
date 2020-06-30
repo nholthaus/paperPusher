@@ -63,16 +63,22 @@ configure_file(appinfo.cpp.in appinfo.cpp @ONLY NEWLINE_STYLE UNIX)
 # .h files
 list(APPEND HEADER_FILES
 	include/appinfo.h
+	include/Application.h
+	include/ExceptionDialog.h
 	include/logerr.h
 	include/logerrMacros.h
 	include/StackTrace.h
+	include/StackTraceException.h
 	include/StackTraceSIGSEGV.h
 	${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h
 )
 
 # .cpp files
 list(APPEND SOURCE_FILES
+	src/Application.cpp
+	src/ExceptionDialog.cpp
 	src/StackTrace.cpp
+	src/StackTraceException.cpp
 	src/StackTraceSIGSEGV.cpp
 	${CMAKE_CURRENT_BINARY_DIR}/appinfo.cpp
 )

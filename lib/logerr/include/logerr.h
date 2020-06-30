@@ -45,8 +45,6 @@
 //	INCLUDES
 //-------------------------
 
-#include <QApplication>
-#include <StackTrace.h>
 #include <logerrMacros.h>
 
 #endif // logerr_h__

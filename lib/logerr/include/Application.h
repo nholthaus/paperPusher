@@ -32,31 +32,45 @@
 //
 //--------------------------------------------------------------------------------------------------
 //
-/// @file	StackTraceSigSev.h
-/// @brief	
+/// @file	Application.h
+/// @brief	Reimplemented QApplication that can handle exceptions
 //
 //--------------------------------------------------------------------------------------------------
 
 #pragma once
-#ifndef StackTraceSigSev_h__
-#define StackTraceSigSev_h__
+#ifndef Application_h__
+#define Application_h__
 
 //-------------------------
 //	INCLUDES
 //-------------------------
 
-#include <csignal>
+#include <QApplication> 
+
+//-------------------------
+//	FORWARD DECLARATIONS
+//-------------------------
 
 //--------------------------------------------------------------------------------------------------
-//	FUNCTIONS
+//	Application
 //--------------------------------------------------------------------------------------------------
 
-// Provides a c++ signal handler that will generate a stack trace upon crashing
-void stackTraceSIGSEGV(int sig);
+class Application : public QApplication
+{
+	Q_OBJECT
 
-// This function intentionally crashes the program, 
-// for test purposes.
-void CrashAndBurn();
+public:
 
-#endif // StackTraceSigSev_h__
+	Application(int& argc, char* argv[]);
+	virtual ~Application();
+	
+	virtual bool notify(QObject*, QEvent*) override;
 
+protected:
+
+	
+
+};
+
+
+#endif // Application_h__
