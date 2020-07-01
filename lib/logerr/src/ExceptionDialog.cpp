@@ -25,7 +25,8 @@ ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* 
 	, m_topLayout(new QVBoxLayout)
 {
 	this->setWindowTitle("ERROR");
-	this->setLayout()
+	this->setLayout(m_topLayout);
+	m_topLayout
 // 	ui->labelMessage->setText(ex.Msg());
 // 	ui->labelLocationInfo->setText(QString("at: %1 (%2:%3)").arg(ex.Origin()).arg(ex.File()).arg(ex.LineNumber()));
 // 	ui->labelErrorCode->setText(QString("Error Code: %1").arg(ex.ErrorCode()));
