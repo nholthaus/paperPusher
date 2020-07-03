@@ -67,6 +67,7 @@ public:
 
 	QString filename() const;
 	QString errorMessage() const;
+	QString errorDetails() const;
 	size_t line() const;
 	QString trace() const;
 	bool fatal() const;
@@ -76,7 +77,7 @@ private:
 	QString		m_errorMessage;
 	QString		m_fileName;
 	size_t		m_line;
-	QString		m_what;
+	QByteArray	m_what;
 	StackTrace	m_trace;
 	bool		m_fatal;
 

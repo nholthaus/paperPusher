@@ -21,7 +21,7 @@ StackTraceException::StackTraceException(QString errorMessage, QString filename,
 		.append("`\n\n")
 		.append(APPINFO::systemDetails())
 		.append("STACK TRACE:\n\n")
-		.append(m_trace);
+		.append(m_trace).toLocal8Bit();
 
 	if (fatal)
 		m_what.prepend("FATAL ");
@@ -32,7 +32,7 @@ StackTraceException::StackTraceException(QString errorMessage, QString filename,
 //--------------------------------------------------------------------------------------------------
 char const* StackTraceException::what() const
 {
-	return m_what.toLocal8Bit().constData();
+	return m_what.constData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,6 +49,14 @@ QString StackTraceException::filename() const
 QString StackTraceException::errorMessage() const
 {
 	return m_errorMessage;
+}
+
+//--------------------------------------------------------------------------------------------------
+//	errorDetails (public ) []
+//--------------------------------------------------------------------------------------------------
+QString StackTraceException::errorDetails() const
+{
+	return m_what;
 }
 
 //--------------------------------------------------------------------------------------------------

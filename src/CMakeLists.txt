@@ -20,6 +20,8 @@ set(APPLICATION_NAME capitalize(${PROJECT_NAME}))
 # .cpp files
 list(APPEND SOURCE_FILES
 main.cpp
+mainWindow.h
+mainWindow.cpp
 )
 
 #-------------------------------------------------------------------------------
@@ -45,7 +47,7 @@ list(REMOVE_DUPLICATES LIBRARIES)
 include_directories(${INCLUDE_DIRS})
 
 # Generate the executable
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${RESOURCES}) #${GUI_TYPE}
+add_executable(${PROJECT_NAME} ${GUI_TYPE} ${SOURCE_FILES} ${RESOURCES})
 
 # link libraries
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})

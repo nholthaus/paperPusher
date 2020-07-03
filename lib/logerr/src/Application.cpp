@@ -1,5 +1,7 @@
 #include <Application.h>
 #include <logerr.h>
+#include <ExceptionDialog.h>
+#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 //	Application (public ) []
@@ -38,6 +40,10 @@ bool Application::notify(QObject* object, QEvent* event)
 	}
 	catch (const StackTraceException& e)
 	{
+		qDebug() << e.what();
+		ExceptionDialog dialog(e);
+		dialog.exec();
+
 		if (e.fatal())
 			throw e;
 	}

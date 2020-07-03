@@ -57,8 +57,8 @@
 //	GLOBALS
 //------------------------------
 
-static std::exception_ptr g_exceptionPtr = nullptr;
-static std::thread::id g_mainThreadID;
+inline std::exception_ptr g_exceptionPtr = nullptr;
+inline std::thread::id g_mainThreadID;
 
 //-------------------------
 //	HELPER FUNCTIONS
@@ -146,6 +146,7 @@ int main(int argc, char* argv[]) \
 // END_MAIN
 #ifndef END_MAIN
 #define END_MAIN \
+		return app.exec(); \
 	} \
 	catch(StackTraceException& e) \
 	{ \

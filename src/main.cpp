@@ -1,4 +1,6 @@
 #include <logerr.h>
+#include <mainWindow.h>
+#include <QTimer>
 
 void fail()
 {
@@ -6,9 +8,14 @@ void fail()
 }
 
 MAIN
-{
-	fail();
-int i;
-std::cin >> i;
-}
+
+	MainWindow w;
+
+	QTimer::singleShot(0, [&] 
+	{ 
+		w.initialize(); 
+		w.show(); 
+	});
+
+
 END_MAIN

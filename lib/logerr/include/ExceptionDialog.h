@@ -85,9 +85,14 @@ public:
 private slots:
 
 	void on_pbCopy_clicked();
-	void on_pbExit_clicked();
+	void on_pbOK_clicked();
 	void on_pbDetails_clicked();
-	void on_pbReportBug_clicked();
+
+	void on_pbApplicationInfoButton_clicked();
+	void on_pbVersionInfoButton_clicked();
+	void on_pbBuildInfoButton_clicked();
+	void on_pbHostInfoButton_clicked();
+	void on_pbStackTraceButton_clicked();
 
 private:
 
@@ -96,11 +101,17 @@ private:
 	QString						m_filename;
 	QString						m_line;
 
-	QPixmap*					m_errorPixmap;
+	QLabel*						m_errorIcon;
 	QLabel*						m_errorMessageLabel;
 	QLabel*						m_errorLocationLabel;
 	QGroupBox*					m_detailsGroupBox;
 	CorrectlySizedTextBrowser*	m_detailsTextBrowser;
+
+	QPushButton*				m_applicationInfoButton;
+	QPushButton*				m_versionInfoButton;
+	QPushButton*				m_buildInfoButton;
+	QPushButton*				m_hostInfoButton;
+	QPushButton*				m_StackTraceButton;
 
 	QPushButton*				m_showDetailsButton;
 	QPushButton*				m_copyButton;
@@ -108,6 +119,8 @@ private:
 
 	QVBoxLayout*				m_topLayout;
 	QHBoxLayout*				m_errorLayout;
+	QVBoxLayout*				m_detailsGroupBoxLayout;
+	QHBoxLayout*				m_detailsButtonLayout;
 	QHBoxLayout*				m_buttonLayout;
 };
 
