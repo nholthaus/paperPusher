@@ -1,5 +1,5 @@
 #include <Application.h>
-#include <logerr.h>
+#include <logerr>
 #include <ExceptionDialog.h>
 #include <QDebug>
 

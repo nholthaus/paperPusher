@@ -1,21 +1,15 @@
-#include <logerr.h>
+#include <logerr>
+
 #include <mainWindow.h>
-#include <QTimer>
-
-void fail()
-{
-
-}
 
 MAIN
 
 	MainWindow w;
 
-	QTimer::singleShot(0, [&] 
-	{ 
-		w.initialize(); 
-		w.show(); 
-	});
-
+	RUN_ONCE_STARTED
+	(
+		w.initialize();
+		w.show();
+	);
 
 END_MAIN

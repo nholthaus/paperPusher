@@ -47,7 +47,9 @@
 
 #include <iostream>
 #include <thread>
-#include <exception>
+
+#include <QTimer>
+
 #include <appinfo.h>
 #include <Application.h>
 #include <StackTraceException.h>
@@ -57,8 +59,8 @@
 //	GLOBALS
 //------------------------------
 
-inline std::exception_ptr g_exceptionPtr = nullptr;
-inline std::thread::id g_mainThreadID;
+inline std::exception_ptr	g_exceptionPtr = nullptr;
+inline std::thread::id		g_mainThreadID;
 
 //-------------------------
 //	HELPER FUNCTIONS
@@ -121,6 +123,10 @@ namespace logerr
 #else
 #define TODO(x)
 #endif
+
+// Run once the event loop starts
+
+#define RUN_ONCE_STARTED(expression) QTimer::singleShot(0, [&] { expression });
 
 // MAIN
 #ifndef MAIN

@@ -65,7 +65,7 @@ list(APPEND HEADER_FILES
 	include/appinfo.h
 	include/Application.h
 	include/ExceptionDialog.h
-	include/logerr.h
+	include/logerr
 	include/logerrMacros.h
 	include/StackTrace.h
 	include/StackTraceException.h

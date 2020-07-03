@@ -32,12 +32,13 @@
 //
 //--------------------------------------------------------------------------------------------------
 //
-/// @file	logerr.h
+/// @file	logerr
 /// @brief	Main Header of the logerr library. Includes all the macros and stuff.
 //
 //--------------------------------------------------------------------------------------------------
 
 #pragma once
+
 #ifndef logerr_h__
 #define logerr_h__
 

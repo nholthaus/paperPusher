@@ -1,5 +1,5 @@
  #include <ExceptionDialog.h>
-#include <logerr.h>
+#include <logerr>
 
 #include <QApplication>
 #include <QClipboard>
@@ -50,8 +50,12 @@ ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* 
 	m_errorLayout->addWidget(m_errorIcon);
 	m_errorIcon->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxWarning).pixmap(QSize(50, 50)));
 
+	QFont monospaceFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+	monospaceFont.setPointSizeF(QApplication::font().pointSizeF() * 1.5);
+	monospaceFont.setWeight(QFont::Weight::Medium);
+
 	m_errorLayout->addWidget(m_errorMessageLabel);
-	m_errorMessageLabel->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+	m_errorMessageLabel->setFont(monospaceFont);
 	m_errorLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Maximum));
 
 	m_detailsGroupBox->setLayout(m_detailsGroupBoxLayout);
@@ -75,7 +79,13 @@ ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* 
 	m_errorMessageLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
  	m_detailsTextBrowser->setText(m_errorDetails);
 	m_detailsTextBrowser->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-	m_detailsTextBrowser->verticalScrollBar()->setSingleStep(QFontMetrics(m_detailsTextBrowser->font()).height()/2);
+	m_detailsTextBrowser->verticalScrollBar()->setRange(0, m_detailsTextBrowser->document()->lineCount());
+	m_detailsTextBrowser->verticalScrollBar()->setSingleStep(5);
+	m_detailsTextBrowser->setFixedHeight(QFontMetrics(m_detailsTextBrowser->font()).lineSpacing() * 12
+		+ m_detailsTextBrowser->document()->documentMargin()
+		+ m_detailsTextBrowser->frameWidth() * 2);
+
+	this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	VERIFY(connect(m_showDetailsButton, &QPushButton::clicked, this, &ExceptionDialog::on_pbDetails_clicked));
 	VERIFY(connect(m_copyButton, &QPushButton::clicked, this, &ExceptionDialog::on_pbCopy_clicked));
