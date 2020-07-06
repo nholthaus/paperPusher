@@ -64,12 +64,16 @@ configure_file(appinfo.cpp.in appinfo.cpp @ONLY NEWLINE_STYLE UNIX)
 list(APPEND HEADER_FILES
 	include/appinfo.h
 	include/Application.h
+	include/concurrentQueue.h
 	include/ExceptionDialog.h
 	include/logerr
 	include/logerrMacros.h
+	include/LogFileWriter.h
+	include/LogStream.h
 	include/StackTrace.h
 	include/StackTraceException.h
 	include/StackTraceSIGSEGV.h
+	include/timestampLite.h
 	${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h
 )
 
@@ -77,9 +81,12 @@ list(APPEND HEADER_FILES
 list(APPEND SOURCE_FILES
 	src/Application.cpp
 	src/ExceptionDialog.cpp
+	src/LogFileWriter.cpp
+	src/LogStream.cpp
 	src/StackTrace.cpp
 	src/StackTraceException.cpp
 	src/StackTraceSIGSEGV.cpp
+	src/timestampLite.cpp
 	${CMAKE_CURRENT_BINARY_DIR}/appinfo.cpp
 )
 
@@ -92,10 +99,10 @@ endif()
 #-------------------------------------------------------------------------------
 
 list(APPEND LIBRARIES
-Qt5::Core
-Qt5::Gui
-Qt5::Widgets
-Threads::Threads
+	Qt5::Core
+	Qt5::Gui
+	Qt5::Widgets
+	Threads::Threads
 )
 
 # Remove duplicate library dependencies. 

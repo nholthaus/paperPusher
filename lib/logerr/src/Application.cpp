@@ -40,7 +40,7 @@ bool Application::notify(QObject* object, QEvent* event)
 	}
 	catch (const StackTraceException& e)
 	{
-		qDebug() << e.what();
+		LOGERR << e.what();
 		ExceptionDialog dialog(e);
 		dialog.exec();
 

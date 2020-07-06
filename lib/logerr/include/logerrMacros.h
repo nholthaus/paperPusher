@@ -52,8 +52,11 @@
 
 #include <appinfo.h>
 #include <Application.h>
+#include <LogStream.h>
+#include <LogFileWriter.h>
 #include <StackTraceException.h>
 #include <StackTraceSIGSEGV.h>
+#include <timestampLite.h>
 
 //------------------------------
 //	GLOBALS
@@ -82,16 +85,16 @@ namespace logerr
 
 // LOG FUNCTIONS
 #ifndef LOGERR
-#define LOGERR		std::cout << "[ERROR]    "
+#define LOGERR		std::cout << '[' << TimestampLite() << "] [ERROR]    "
 #endif
 #ifndef LOGWARNING
-#define LOGWARNING	std::cout << "[WARNING]  "
+#define LOGWARNING	std::cout << '[' << TimestampLite() << "] [WARNING]  "
 #endif
 #ifndef LOGDEBUG
-#define LOGDEBUG	std::cout << "[DEBUG]    "
+#define LOGDEBUG	std::cout << '[' << TimestampLite() << "] [DEBUG]    "
 #endif
 #ifndef LOGINFO
-#define LOGINFO		std::cout << "[INFO]     "
+#define LOGINFO		std::cout << '[' << TimestampLite() << "] [INFO]     "
 #endif
 
 // filename
@@ -133,26 +136,32 @@ namespace logerr
 #define MAIN \
 int main(int argc, char* argv[]) \
 { \
+	std::signal(SIGSEGV, stackTraceSIGSEGV); \
+	\
+	g_mainThreadID = std::this_thread::get_id(); \
+	\
+	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); \
+	\
+	Application app(argc, argv); \
+	app.setOrganizationName(APPINFO::organization()); \
+	app.setOrganizationDomain(APPINFO::organizationDomain()); \
+	app.setApplicationName(APPINFO::name()); \
+	app.setApplicationVersion(APPINFO::version()); \
+	\
+	LogStream logStream(std::cout); \
+	LogFileWriter logFileWriter; \
+	VERIFY(QObject::connect(&logStream, &LogStream::logEntryReady, &logFileWriter, &LogFileWriter::queueLogEntry)); \
+	\
+	LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started." << std::endl; \
+	\
 	try \
-	{ \
-		LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started." << std::endl; \
-		std::signal(SIGSEGV, stackTraceSIGSEGV); \
-		\
-		g_mainThreadID = std::this_thread::get_id(); \
-		\
-		QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); \
-		\
-		Application app(argc,argv); \
-		app.setOrganizationName(APPINFO::organization()); \
-		app.setOrganizationDomain(APPINFO::organizationDomain()); \
- 		app.setApplicationName(APPINFO::name()); \
- 		app.setApplicationVersion(APPINFO::version());
+	{
 #endif
 
 // END_MAIN
 #ifndef END_MAIN
 #define END_MAIN \
-		return app.exec(); \
+		app.exec(); \
 	} \
 	catch(StackTraceException& e) \
 	{ \

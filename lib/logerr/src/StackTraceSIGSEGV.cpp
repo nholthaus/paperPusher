@@ -28,7 +28,7 @@ void stackTraceSIGSEGV(int sig)
 	// make sure the directory exists
 	QDir dir;
 	dir.mkpath(APPINFO::crashDumpDir());
-	LOGINFO << APPINFO::crashDumpDir().toStdString() << std::endl;
+	LOGINFO << "Writing crash dump to: " << APPINFO::crashDumpDir().toStdString() << std::endl;
 
 	QString crashdumpFileName = QString("crashdump-") + QDateTime::currentDateTime().toString(Qt::ISODate).remove(':') + ".txt";
 	if (!qApp->applicationName().isEmpty())
@@ -40,6 +40,7 @@ void stackTraceSIGSEGV(int sig)
 	crashDumpFile.write(sDetails.toLocal8Bit());
 	crashDumpFile.close();
 
+	LOGINFO << APPINFO::name().toLocal8Bit().constData() << " terminated due to a fatal error (application crash). Exiting with code 1..." << std::endl;
 	std::exit(1);
 }
 

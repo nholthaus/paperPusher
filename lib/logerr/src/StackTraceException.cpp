@@ -21,7 +21,8 @@ StackTraceException::StackTraceException(QString errorMessage, QString filename,
 		.append("`\n\n")
 		.append(APPINFO::systemDetails())
 		.append("STACK TRACE:\n\n")
-		.append(m_trace).toLocal8Bit();
+		.append(m_trace).toLocal8Bit()
+		.append('\n');
 
 	if (fatal)
 		m_what.prepend("FATAL ");

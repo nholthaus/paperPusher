@@ -1,4 +1,8 @@
- #include <ExceptionDialog.h>
+//------------------------------
+//	INCLUDES
+//------------------------------
+
+#include <ExceptionDialog.h>
 #include <logerr>
 
 #include <QApplication>
@@ -6,14 +10,17 @@
 #include <QDebug>
 #include <QFontDatabase>
 #include <QFontMetrics>
-#include <QLabel>
 #include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
 #include <QScrollBar>
 #include <QStyle>
-#include <QHBoxLayout>
 #include <QVBoxLayout>
 
+//--------------------------------------------------------------------------------------------------
+//	CONSTRUCTOR
+//--------------------------------------------------------------------------------------------------
 ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* parent /*= nullptr*/)
 	: QDialog(parent)
 	, m_errorMessage(exception.errorMessage())
@@ -39,7 +46,6 @@ ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* 
 	, m_errorLayout(new QHBoxLayout)
 	, m_buttonLayout(new QHBoxLayout)
 {
-	qDebug() << m_errorDetails;
 	this->setWindowTitle("ERROR");
 	this->setLayout(m_topLayout);
 
@@ -98,6 +104,9 @@ ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* 
 	VERIFY(connect(m_StackTraceButton, &QPushButton::clicked, this, &ExceptionDialog::on_pbStackTraceButton_clicked));
 }
 
+//--------------------------------------------------------------------------------------------------
+//	DESTRUCTOR
+//--------------------------------------------------------------------------------------------------
 ExceptionDialog::~ExceptionDialog()
 {
 
@@ -181,47 +190,6 @@ void ExceptionDialog::on_pbStackTraceButton_clicked()
 	m_detailsTextBrowser->moveCursor(QTextCursor::End);
 	m_detailsTextBrowser->setTextCursor(cur);
 }
-
-// void ExceptionDialog::ShowModal(const ExceptionContainer& ex, QWidget *parent)
-// {
-// 	try
-// 	{
-// 		ex.Rethrow();
-// 	}
-// 	catch(const Exception& ex)
-// 	{
-//         m_pModalDialog = new ExceptionDialog(parent, ex);
-// 		m_pModalDialog->adjustSize();
-// 		m_pModalDialog->exec();
-// 		delete m_pModalDialog;
-// 		m_pModalDialog = nullptr;
-// 	}
-// }
-// 
-// void ExceptionDialog::on_pbExit_clicked()
-// {
-// 	this->close();
-// }
-// 
-// void ExceptionDialog::on_pbDetails_clicked()
-// {
-// 	if (ui->pbDetails->isChecked())
-// 	{
-// 		ui->pbDetails->setText("Hide Details");
-// 		ui->gbDetails->setVisible(true);		
-// 	}
-// 	else
-// 	{
-// 		ui->pbDetails->setText("Show Details");
-// 		ui->gbDetails->setVisible(false);
-// 	}
-// 
-// 	if (m_pModalDialog)
-// 		m_pModalDialog->adjustSize();
-// 
-// 	// scroll to the stack trace
-// 	//ui->tbStackTrace->ensureCursorVisible();
-// }
 
 //--------------------------------------------------------------------------------------------------
 //	CorrectlySizedTextBrowser (public ) []

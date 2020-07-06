@@ -27,108 +27,65 @@
 // 
 //--------------------------------------------------------------------------------------------------
 //
-// ATTRIBUTION:
-//
+//	ATTRIBUTION:
+//	https://stackoverflow.com/questions/10405739/const-ref-when-sending-signals-in-qt
 //
 //--------------------------------------------------------------------------------------------------
 //
-/// @file	ExceptionDialog.h
-/// @brief	Dialog window for displaying errors (exceptions)
+/// @file	LogStream.h
+/// @brief	Stream that captures std::cout and passes it on to file logging and a log model
 //
 //--------------------------------------------------------------------------------------------------
 
 #pragma once
-#ifndef ExceptionDialog_h__
-#define ExceptionDialog_h__
+#ifndef LogStream_h__
+#define LogStream_h__
 
 //-------------------------
 //	INCLUDES
 //-------------------------
 
-#include <QDialog>
-#include <QTextBrowser>
+#include <string>
+#include <streambuf>
+
+#include <QObject>
 
 //-------------------------
 //	FORWARD DECLARATIONS
 //-------------------------
 
-class StackTraceException;
-class QPixmap;
-class QLabel;
-class QGroupBox;
-class QHBoxLayout;
-class QVBoxLayout;
-
-//--------------------------------------------------------------------------------------------------
-//	CorrectlySizedTextBrowser
-//--------------------------------------------------------------------------------------------------
-class CorrectlySizedTextBrowser : public QTextBrowser
+namespace std
 {
-public:
-	CorrectlySizedTextBrowser(QWidget* parent = nullptr);;
-	virtual QSize sizeHint() const override;
-	virtual QSize minimumSizeHint() const override;
-};
+	ostream;
+}
 
 //--------------------------------------------------------------------------------------------------
-//	ExceptionDialog
+//	LogStream
 //--------------------------------------------------------------------------------------------------
-class ExceptionDialog : public QDialog
+class LogStream : public QObject, public std::basic_streambuf<char>
 {
 	Q_OBJECT
 
 public:
 
-	ExceptionDialog(const StackTraceException& msg, QWidget* parent = nullptr);
-	virtual ~ExceptionDialog();
+	LogStream(std::ostream& stream);
+	virtual ~LogStream();
 
-private slots:
+signals:
 
-	void on_pbCopy_clicked();
-	void on_pbOK_clicked();
-	void on_pbDetails_clicked();
+	void logEntryReady(std::string str);
 
-	void on_pbApplicationInfoButton_clicked();
-	void on_pbVersionInfoButton_clicked();
-	void on_pbBuildInfoButton_clicked();
-	void on_pbHostInfoButton_clicked();
-	void on_pbStackTraceButton_clicked();
+protected:
+
+	virtual int_type overflow(int_type v);
+	virtual std::streamsize xsputn(const char* p, std::streamsize n);
 
 private:
 
-	QString						m_errorMessage;
-	QString						m_errorDetails;
-	QString						m_filename;
-	QString						m_line;
-
-	QLabel*						m_errorIcon;
-	QLabel*						m_errorMessageLabel;
-	QLabel*						m_errorLocationLabel;
-	QGroupBox*					m_detailsGroupBox;
-	CorrectlySizedTextBrowser*	m_detailsTextBrowser;
-
-	QPushButton*				m_applicationInfoButton;
-	QPushButton*				m_versionInfoButton;
-	QPushButton*				m_buildInfoButton;
-	QPushButton*				m_hostInfoButton;
-	QPushButton*				m_StackTraceButton;
-
-	QPushButton*				m_showDetailsButton;
-	QPushButton*				m_copyButton;
-	QPushButton*				m_okButton;
-
-	QVBoxLayout*				m_topLayout;
-	QHBoxLayout*				m_errorLayout;
-	QVBoxLayout*				m_detailsGroupBoxLayout;
-	QHBoxLayout*				m_detailsButtonLayout;
-	QHBoxLayout*				m_buttonLayout;
+	std::ostream&		m_stream;
+	std::streambuf*		m_old_buf;
+	std::string			m_string;
 };
 
 
-#endif // ExceptionDialog_h__
-
-
-
-
-
-
+#endif // LogStream_h__

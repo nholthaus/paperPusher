@@ -32,103 +32,54 @@
 //
 //--------------------------------------------------------------------------------------------------
 //
-/// @file	ExceptionDialog.h
-/// @brief	Dialog window for displaying errors (exceptions)
+/// @file	LogFileWriter.h
+/// @brief	Writes entries to the log file from a seperate thread
 //
 //--------------------------------------------------------------------------------------------------
 
 #pragma once
-#ifndef ExceptionDialog_h__
-#define ExceptionDialog_h__
+#ifndef LogFileWriter_h__
+#define LogFileWriter_h__
 
 //-------------------------
 //	INCLUDES
 //-------------------------
 
-#include <QDialog>
-#include <QTextBrowser>
+#include <concurrentQueue.h>
+#include <condition_variable>
+#include <string>
+#include <thread>
+
+#include <QObject>
+#include <QString> 
 
 //-------------------------
 //	FORWARD DECLARATIONS
 //-------------------------
 
-class StackTraceException;
-class QPixmap;
-class QLabel;
-class QGroupBox;
-class QHBoxLayout;
-class QVBoxLayout;
 
 //--------------------------------------------------------------------------------------------------
-//	CorrectlySizedTextBrowser
+//	LogFileWriter
 //--------------------------------------------------------------------------------------------------
-class CorrectlySizedTextBrowser : public QTextBrowser
-{
-public:
-	CorrectlySizedTextBrowser(QWidget* parent = nullptr);;
-	virtual QSize sizeHint() const override;
-	virtual QSize minimumSizeHint() const override;
-};
 
-//--------------------------------------------------------------------------------------------------
-//	ExceptionDialog
-//--------------------------------------------------------------------------------------------------
-class ExceptionDialog : public QDialog
+class LogFileWriter : public QObject
 {
 	Q_OBJECT
 
 public:
 
-	ExceptionDialog(const StackTraceException& msg, QWidget* parent = nullptr);
-	virtual ~ExceptionDialog();
+	LogFileWriter(QString logFilePath = "");
+	virtual ~LogFileWriter();
+	
+public slots:
 
-private slots:
+	void queueLogEntry(std::string str);
 
-	void on_pbCopy_clicked();
-	void on_pbOK_clicked();
-	void on_pbDetails_clicked();
+protected:
 
-	void on_pbApplicationInfoButton_clicked();
-	void on_pbVersionInfoButton_clicked();
-	void on_pbBuildInfoButton_clicked();
-	void on_pbHostInfoButton_clicked();
-	void on_pbStackTraceButton_clicked();
-
-private:
-
-	QString						m_errorMessage;
-	QString						m_errorDetails;
-	QString						m_filename;
-	QString						m_line;
-
-	QLabel*						m_errorIcon;
-	QLabel*						m_errorMessageLabel;
-	QLabel*						m_errorLocationLabel;
-	QGroupBox*					m_detailsGroupBox;
-	CorrectlySizedTextBrowser*	m_detailsTextBrowser;
-
-	QPushButton*				m_applicationInfoButton;
-	QPushButton*				m_versionInfoButton;
-	QPushButton*				m_buildInfoButton;
-	QPushButton*				m_hostInfoButton;
-	QPushButton*				m_StackTraceButton;
-
-	QPushButton*				m_showDetailsButton;
-	QPushButton*				m_copyButton;
-	QPushButton*				m_okButton;
-
-	QVBoxLayout*				m_topLayout;
-	QHBoxLayout*				m_errorLayout;
-	QVBoxLayout*				m_detailsGroupBoxLayout;
-	QHBoxLayout*				m_detailsButtonLayout;
-	QHBoxLayout*				m_buttonLayout;
+	ConcurrentQueue<std::string>	m_logQueue;
+	std::thread						m_thread;
+	std::atomic_bool				m_joinAll = false;
 };
 
-
-#endif // ExceptionDialog_h__
-
-
-
-
-
-
+#endif // LogFileWriter_h__
