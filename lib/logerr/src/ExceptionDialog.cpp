@@ -141,7 +141,10 @@ void ExceptionDialog::setupUI()
 	m_topLayout->addLayout(m_buttonLayout);
 
 	m_errorLayout->addWidget(m_errorIcon);
-	m_errorIcon->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxWarning).pixmap(QSize(50, 50)));
+	if(m_fatal)
+		m_errorIcon->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxCritical).pixmap(QSize(50, 50)));
+	else
+		m_errorIcon->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxWarning).pixmap(QSize(50, 50)));
 
 	QFont monospaceFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
 	monospaceFont.setPointSizeF(QApplication::font().pointSizeF() * 1.5);
@@ -164,10 +167,11 @@ void ExceptionDialog::setupUI()
 	m_detailsButtonLayout->addWidget(m_StackTraceButton);
 
 	m_buttonLayout->addWidget(m_showDetailsButton);
-	m_buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Maximum));
 	m_buttonLayout->addWidget(m_copyButton);
 	m_buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Maximum));
 	m_buttonLayout->addWidget(m_okButton);
+
+	m_okButton->setFocus();
 
 	m_errorMessageLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 	m_detailsTextBrowser->setText(m_errorDetails);
