@@ -79,7 +79,10 @@ class ExceptionDialog : public QDialog
 
 public:
 
-	ExceptionDialog(const StackTraceException& msg, QWidget* parent = nullptr);
+	ExceptionDialog(const StackTraceException& msg, bool fatal = false, QWidget* parent = nullptr);
+	ExceptionDialog(const std::exception& exception, bool fatal = false, QWidget* parent = nullptr);
+	ExceptionDialog(const char* msg, bool fatal = false, QWidget* parent = nullptr);
+
 	virtual ~ExceptionDialog();
 
 private slots:
@@ -95,6 +98,12 @@ private slots:
 	void on_pbStackTraceButton_clicked();
 
 private:
+
+	void setupUI();
+
+private:
+
+	bool						m_fatal;
 
 	QString						m_errorMessage;
 	QString						m_errorDetails;

@@ -31,6 +31,7 @@ void MainWindow::initialize()
 	// the UI to not be fully constructed.
 	//**********************************************************************************************
 
-	ERR("test error");
+//	ERR("test error");
+	throw std::logic_error("AHH std::exception");
 }
 

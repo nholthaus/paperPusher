@@ -40,18 +40,29 @@ bool Application::notify(QObject* object, QEvent* event)
 	}
 	catch (const StackTraceException& e)
 	{
-		LOGERR << e.what();
-		ExceptionDialog dialog(e);
+		LOGERR << e.what() << std::endl;
+		ExceptionDialog dialog(e, e.fatal());
 		dialog.exec();
 
 		if (e.fatal())
-			throw e;
+			std::exit(3);
 	}
 	catch (const std::exception& e)
 	{
+		LOGERR << "Caught a std::exception: " << e.what();
+		ExceptionDialog dialog(e, true);
+		dialog.exec();
+
+		std::exit(3);
 	}
 	catch (...)
 	{
+		const char* error = "Unhandled exception caught in Application::notify() catch-all block.";
+		LOGERR << error << std::endl;
+ 		ExceptionDialog dialog(error, true);
+ 		dialog.exec();
+ 
+		std::exit(3);
 	}
 
 	return retVal;

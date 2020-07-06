@@ -21,8 +21,9 @@
 //--------------------------------------------------------------------------------------------------
 //	CONSTRUCTOR
 //--------------------------------------------------------------------------------------------------
-ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* parent /*= nullptr*/)
+ExceptionDialog::ExceptionDialog(const StackTraceException& exception, bool fatal, QWidget* parent /*= nullptr*/)
 	: QDialog(parent)
+	, m_fatal(fatal)
 	, m_errorMessage(exception.errorMessage())
 	, m_errorDetails(exception.errorDetails())
 	, m_filename(exception.filename())
@@ -46,7 +47,93 @@ ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* 
 	, m_errorLayout(new QHBoxLayout)
 	, m_buttonLayout(new QHBoxLayout)
 {
-	this->setWindowTitle("ERROR");
+	setupUI();
+}
+
+//--------------------------------------------------------------------------------------------------
+//	ExceptionDialog (public ) []
+//--------------------------------------------------------------------------------------------------
+ExceptionDialog::ExceptionDialog(const std::exception& exception, bool fatal /*= false*/, QWidget* parent /*= nullptr*/)
+	: QDialog(parent)
+	, m_fatal(fatal)
+	, m_errorMessage(QString("An unrecoverable error has occurred.\n").append(APPINFO::name()).append(" must now exit."))
+	, m_errorDetails(exception.what())
+	, m_filename("")
+	, m_line("")
+	, m_errorIcon(new QLabel(this))
+	, m_errorMessageLabel(new QLabel(m_errorMessage.prepend("ERROR: "), this))
+	, m_errorLocationLabel(new QLabel(QString("at: %1:%2").arg(m_filename).arg(m_line), this))
+	, m_detailsGroupBox(new QGroupBox())
+	, m_detailsGroupBoxLayout(new QVBoxLayout)
+	, m_detailsTextBrowser(new CorrectlySizedTextBrowser(this))
+	, m_detailsButtonLayout(new QHBoxLayout)
+	, m_applicationInfoButton(new QPushButton("App Info"))
+	, m_versionInfoButton(new QPushButton("Version Info"))
+	, m_buildInfoButton(new QPushButton("Build Info"))
+	, m_hostInfoButton(new QPushButton("Host Info"))
+	, m_StackTraceButton(new QPushButton("Stack Trace"))
+	, m_showDetailsButton(new QPushButton("Show Details", this))
+	, m_copyButton(new QPushButton("Copy Error", this))
+	, m_okButton(new QPushButton("OK", this))
+	, m_topLayout(new QVBoxLayout)
+	, m_errorLayout(new QHBoxLayout)
+	, m_buttonLayout(new QHBoxLayout)
+{
+	setupUI();
+	m_errorLocationLabel->hide();
+
+	m_applicationInfoButton->hide();
+	m_versionInfoButton->hide();
+	m_buildInfoButton->hide();
+	m_hostInfoButton->hide();
+	m_StackTraceButton->hide();
+}
+
+//--------------------------------------------------------------------------------------------------
+//	ExceptionDialog (public ) []
+//--------------------------------------------------------------------------------------------------
+ExceptionDialog::ExceptionDialog(const char* msg, bool fatal /*= false*/, QWidget* parent /*= nullptr*/)
+	: QDialog(parent)
+	, m_fatal(fatal)
+	, m_errorMessage(QString("An unrecoverable error has occurred.\n").append(APPINFO::name()).append(" must now exit."))
+	, m_errorDetails(msg)
+	, m_filename("")
+	, m_line("")
+	, m_errorIcon(new QLabel(this))
+	, m_errorMessageLabel(new QLabel(m_errorMessage.prepend("ERROR: "), this))
+	, m_errorLocationLabel(new QLabel(QString("at: %1:%2").arg(m_filename).arg(m_line), this))
+	, m_detailsGroupBox(new QGroupBox())
+	, m_detailsGroupBoxLayout(new QVBoxLayout)
+	, m_detailsTextBrowser(new CorrectlySizedTextBrowser(this))
+	, m_detailsButtonLayout(new QHBoxLayout)
+	, m_applicationInfoButton(new QPushButton("App Info"))
+	, m_versionInfoButton(new QPushButton("Version Info"))
+	, m_buildInfoButton(new QPushButton("Build Info"))
+	, m_hostInfoButton(new QPushButton("Host Info"))
+	, m_StackTraceButton(new QPushButton("Stack Trace"))
+	, m_showDetailsButton(new QPushButton("Show Details", this))
+	, m_copyButton(new QPushButton("Copy Error", this))
+	, m_okButton(new QPushButton("OK", this))
+	, m_topLayout(new QVBoxLayout)
+	, m_errorLayout(new QHBoxLayout)
+	, m_buttonLayout(new QHBoxLayout)
+{
+	setupUI();
+	m_errorLocationLabel->hide();
+
+	m_applicationInfoButton->hide();
+	m_versionInfoButton->hide();
+	m_buildInfoButton->hide();
+	m_hostInfoButton->hide();
+	m_StackTraceButton->hide();
+}
+
+//--------------------------------------------------------------------------------------------------
+//	setupUI (public ) []
+//--------------------------------------------------------------------------------------------------
+void ExceptionDialog::setupUI()
+{
+	m_fatal ? this->setWindowTitle("FATAL ERROR") : this->setWindowTitle("ERROR");
 	this->setLayout(m_topLayout);
 
 	m_topLayout->addLayout(m_errorLayout);
@@ -77,13 +164,13 @@ ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* 
 	m_detailsButtonLayout->addWidget(m_StackTraceButton);
 
 	m_buttonLayout->addWidget(m_showDetailsButton);
-	m_buttonLayout->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::MinimumExpanding, QSizePolicy::Maximum));
+	m_buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Maximum));
 	m_buttonLayout->addWidget(m_copyButton);
 	m_buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Maximum));
 	m_buttonLayout->addWidget(m_okButton);
 
 	m_errorMessageLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
- 	m_detailsTextBrowser->setText(m_errorDetails);
+	m_detailsTextBrowser->setText(m_errorDetails);
 	m_detailsTextBrowser->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 	m_detailsTextBrowser->verticalScrollBar()->setRange(0, m_detailsTextBrowser->document()->lineCount());
 	m_detailsTextBrowser->verticalScrollBar()->setSingleStep(5);
@@ -101,7 +188,7 @@ ExceptionDialog::ExceptionDialog(const StackTraceException& exception, QWidget* 
 	VERIFY(connect(m_versionInfoButton, &QPushButton::clicked, this, &ExceptionDialog::on_pbVersionInfoButton_clicked));
 	VERIFY(connect(m_buildInfoButton, &QPushButton::clicked, this, &ExceptionDialog::on_pbBuildInfoButton_clicked));
 	VERIFY(connect(m_hostInfoButton, &QPushButton::clicked, this, &ExceptionDialog::on_pbHostInfoButton_clicked));
-	VERIFY(connect(m_StackTraceButton, &QPushButton::clicked, this, &ExceptionDialog::on_pbStackTraceButton_clicked));
+	VERIFY(connect(m_StackTraceButton, &QPushButton::clicked, this, &ExceptionDialog::on_pbStackTraceButton_clicked));		
 }
 
 //--------------------------------------------------------------------------------------------------

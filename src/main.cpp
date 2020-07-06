@@ -5,7 +5,7 @@
 MAIN
 
 	MainWindow w;
-CrashAndBurn();
+
 	RUN_ONCE_STARTED
 	(
 		w.initialize();
