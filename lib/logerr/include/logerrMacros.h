@@ -138,6 +138,7 @@ int main(int argc, char* argv[]) \
 { \
 	std::signal(SIGSEGV, stackTraceSIGSEGV); \
 	\
+	int code = 0; \
 	g_mainThreadID = std::this_thread::get_id(); \
 	\
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); \
@@ -167,23 +168,24 @@ int main(int argc, char* argv[]) \
 	{ \
 		LOGERR << e.what() << std::endl; \
 		LOGINFO << logerr::printable(APPINFO::name()) << " exiting due to fatal error..." << std::endl;  \
-		std::exit(2); \
+		code = 2; \
 	} \
 	catch(std::exception& e) \
 	{ \
-		LOGERR << "ERROR: " << e.what() << std::endl; \
+		LOGERR << "ERROR: Caught unhandled exception -  " << e.what() << std::endl; \
 		LOGINFO << logerr::printable(APPINFO::name()) << " exiting due to fatal error..." << std::endl;  \
-		std::exit(2); \
+		code = 2; \
 	} \
 	catch(...) \
 	{ \
 		LOGERR << "ERROR: An unknown fatal error occured. " << std::endl; \
 		LOGINFO << logerr::printable(APPINFO::name()) << " exiting due to fatal error..." << std::endl;  \
-		std::exit(2); \
+		code = 2; \
 	} \
 	\
-	LOGINFO << logerr::printable(APPINFO::name()) << " Exited Successfully" << std::endl;\
-	return 0; \
+	if(code == 0) LOGINFO << logerr::printable(APPINFO::name()) << " Exited Successfully" << std::endl;\
+	\
+	return code; \
 }
 #endif
 

@@ -40,20 +40,21 @@ bool Application::notify(QObject* object, QEvent* event)
 	}
 	catch (const StackTraceException& e)
 	{
-		LOGERR << e.what() << std::endl;
+		if(!e.fatal())
+			LOGERR << e.what() << std::endl;
+
 		ExceptionDialog dialog(e, e.fatal());
 		dialog.exec();
 
 		if (e.fatal())
-			std::exit(3);
+			throw e;
 	}
 	catch (const std::exception& e)
 	{
-		LOGERR << "Caught a std::exception: " << e.what();
 		ExceptionDialog dialog(e, true);
 		dialog.exec();
 
-		std::exit(3);
+		throw e;
 	}
 	catch (...)
 	{
@@ -62,7 +63,7 @@ bool Application::notify(QObject* object, QEvent* event)
  		ExceptionDialog dialog(error, true);
  		dialog.exec();
  
-		std::exit(3);
+		throw;
 	}
 
 	return retVal;
