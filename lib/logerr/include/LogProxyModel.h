@@ -32,77 +32,62 @@
 //
 //--------------------------------------------------------------------------------------------------
 //
-/// @file	LogModel.h
+/// @file	LogProxyModel.h
 /// @brief	
 //
 //--------------------------------------------------------------------------------------------------
 
 #pragma once
-#ifndef LogModel_h__
-#define LogModel_h__
+#ifndef LogProxyModel_h__
+#define LogProxyModel_h__
 
 //-------------------------
 //	INCLUDES
 //-------------------------
 
-#include <deque>
-#include <string>
-
-#include <QAbstractItemModel>
-#include <QMetaEnum>
-#include <QRegularExpression>
-#include <QStringList>
+#include <QSortFilterProxyModel> 
 
 //-------------------------
 //	FORWARD DECLARATIONS
 //-------------------------
 
-class QModelIndex;
-class QVariant;
 
 
 //--------------------------------------------------------------------------------------------------
-//	LogModel
+//	LogProxyModel
 //--------------------------------------------------------------------------------------------------
 
-class LogModel : public QAbstractItemModel
+class LogProxyModel : public QSortFilterProxyModel
 {
-	Q_GADGET
-
 public:
 
-	enum Column
-	{
-		Timestamp = 0,
-		Type = 1,
-		Message = 2,
-	};
-	Q_ENUM(Column);
-
-public:
-
-	LogModel(QObject* parent = nullptr);
-	virtual ~LogModel();
+	LogProxyModel(QObject* parent = nullptr);
+	virtual ~LogProxyModel();
 	
-	virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
-	virtual QModelIndex parent(const QModelIndex& child) const override;
-	virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-	virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-	virtual bool hasChildren(const QModelIndex& parent = QModelIndex()) const override;
-	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-	virtual bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
-	virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 	
-	virtual void appendRow(const QString& value);
-	virtual void appendRow(const std::string& value);
+	bool acceptsErrors() const;
+	bool acceptsWarnings() const;
+	bool acceptsInfo() const;
+	bool acceptsDebug() const;
+	bool acceptsTimestamps() const;
+
+	void setAcceptsErrors(bool val);
+	void setAcceptsWarnings(bool val);
+	void setAcceptsInfo(bool val);
+	void setAcceptsDebug(bool val);
+	void setAcceptsTimestamps(bool val);
 
 protected:
 
-	QRegularExpression				m_regex;
-	std::deque<QStringList>			m_logData;
-	QMetaEnum						m_columns;
+	virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
 
+private:
+
+	bool m_acceptsErrors = true;
+	bool m_acceptsWarnings = true;
+	bool m_acceptsInfo = true;
+	bool m_acceptsDebug = true;
+	bool m_acceptsTimestamps = true;
 };
 
-#endif // LogModel_h__
+#endif // LogProxyModel_h__

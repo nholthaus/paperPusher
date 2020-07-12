@@ -109,6 +109,7 @@ private:
 	QString						m_errorMessage;
 	QString						m_errorDetails;
 	QString						m_filename;
+	QString						m_function;
 	QString						m_line;
 
 	QLabel*						m_errorIcon;

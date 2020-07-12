@@ -71,6 +71,7 @@ list(APPEND HEADER_FILES
 	include/LogDock.h
 	include/LogFileWriter.h
 	include/LogModel.h
+	include/LogProxyModel.h
 	include/LogStream.h
 	include/StackTrace.h
 	include/StackTraceException.h
@@ -86,6 +87,7 @@ list(APPEND SOURCE_FILES
 	src/LogFileWriter.cpp
 	src/LogDock.cpp
 	src/LogModel.cpp
+	src/LogProxyModel.cpp
 	src/LogStream.cpp
 	src/StackTrace.cpp
 	src/StackTraceException.cpp

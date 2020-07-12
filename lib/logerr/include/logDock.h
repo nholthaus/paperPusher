@@ -54,7 +54,14 @@
 //-------------------------
 
 class LogModel;
+class LogProxyModel;
+
+class QCheckBox;
+class QFrame;
+class QGroupBox;
+class QHBoxLayout;
 class QTreeView;
+class QVBoxLayout;
 
 //--------------------------------------------------------------------------------------------------
 //	LogDock
@@ -74,10 +81,36 @@ public slots:
 
 	void queueLogEntry(std::string str);
 
-protected:
+private slots:
 
-	LogModel*				m_logModel = nullptr;
-	QTreeView*				m_logView  = nullptr;
+// 	void on_errorCheckBox_toggled();
+// 	void on_warningCheckBox_toggled();
+// 	void on_infoCheckBox_toggled();
+// 	void on_debugCheckBox_toggled();
+// 
+ 	void on_showTimestampsCheckBox_toggled();
+
+
+private:
+
+	LogModel*				m_logModel					= nullptr;
+	LogProxyModel*			m_logProxyModel				= nullptr;
+	QTreeView*				m_logView					= nullptr;
+
+	QFrame*					m_topLevelWidget			= nullptr;
+	QVBoxLayout*			m_topLevelLayout			= nullptr;
+	QHBoxLayout*			m_settingsLayout			= nullptr;
+	QGroupBox*				m_typesGroupbox				= nullptr;
+	QGroupBox*				m_settingsGroupBox			= nullptr;
+	
+	QCheckBox*				m_errorCheckBox				= nullptr;
+	QCheckBox*				m_warningCheckBox			= nullptr; 
+	QCheckBox*				m_infoCheckBox				= nullptr; 
+	QCheckBox*				m_debugCheckBox				= nullptr;
+
+	QCheckBox*				m_showTimestampsCheckBox	= nullptr;
+	QCheckBox*				m_autoscrollCheckBox		= nullptr;
+
 
 };
 

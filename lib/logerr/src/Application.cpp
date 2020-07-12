@@ -69,3 +69,4 @@ bool Application::notify(QObject* object, QEvent* event)
 	return retVal;
 }
 
+ 

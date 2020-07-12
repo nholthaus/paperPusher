@@ -1,7 +1,10 @@
 #include <LogModel.h>
 #include <timestampLite.h>
 
+#include <QApplication>
+#include <QFont>
 #include <QRegularExpression>
+#include <QStyle>
 
 //------------------------------
 //	CONSTANTS
@@ -16,6 +19,7 @@ constexpr const char* regex			= R"(\s*?\[(.*?)\]\s*?\[(.*?)\]\s*?(.*?)\n(.*))";
 LogModel::LogModel(QObject* parent)
 	: QAbstractItemModel(parent)
 	, m_regex(regex)
+	, m_columns(QMetaEnum::fromType<Column>())
 {
 	m_regex.setPatternOptions(QRegularExpression::MultilineOption | QRegularExpression::DotMatchesEverythingOption);
 }
@@ -83,7 +87,7 @@ int LogModel::rowCount(const QModelIndex& parent /*= QModelIndex()*/) const
 //--------------------------------------------------------------------------------------------------
 int LogModel::columnCount(const QModelIndex& parent /*= QModelIndex()*/) const
 {
-	return 3;
+	return m_columns.keyCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,15 +108,47 @@ bool LogModel::hasChildren(const QModelIndex& parent /*= QModelIndex()*/) const
 //--------------------------------------------------------------------------------------------------
 QVariant LogModel::data(const QModelIndex& index, int role /*= Qt::DisplayRole*/) const
 {
+	int column = index.column();
+	int row = index.row();
+	int parentRow = index.parent().row();
+	bool child = index.parent().isValid();
+	QString type = !child ? m_logData[row][Column::Type] : m_logData[parentRow][Column::Type];
+
 	switch (role)
 	{
 	case Qt::DisplayRole:
-		if (!index.parent().isValid())
-			return m_logData[index.row()][index.column()];
-		else if (index.column() < 2)
+		if (!child)
+			return m_logData[row][column];
+		else if (column < Column::Message)
 			return "";
 		else
-			return m_logData[index.parent().row()].last();
+			return m_logData[parentRow][row + columnCount()];
+		break;
+// 	case Qt::DecorationRole:
+// 		if (m_logData[index.row()][Column::Type] == "ERROR")
+// 			return qApp->style()->standardIcon(QStyle::SP_MessageBoxCritical);
+// 		else
+// 			return QVariant();
+// 		break;
+ 	case Qt::FontRole:
+		if (type != "INFO" && column != Column::Timestamp)
+		{
+			QFont font;
+			font.setWeight(QFont::Bold);
+			return font;
+		}
+		else
+			return QVariant();
+	case Qt::ForegroundRole:
+		if (column == Column::Timestamp && type == "INFO")
+			return QBrush(Qt::gray);
+		if (type == "ERROR")
+			return QBrush(Qt::red);
+		if (type == "WARNING")
+			return QBrush("#a67c00");
+		if (type == "DEBUG")
+			return QBrush("#4E2A84");
+		return QBrush(Qt::black);
 	default:
 		return QVariant();
 	}
@@ -127,17 +163,7 @@ QVariant LogModel::headerData(int section, Qt::Orientation orientation, int role
 	switch (role)
 	{
 	case Qt::DisplayRole:
-		switch (section)
-		{
-		case 0:
-			return "Timestamp";
-		case 1:
-			return "Type";
-		case 2:
-			return "Details";
-		default:
-			return "SOMETHING WRONG";
-		}
+		return m_columns.valueToKey(section);
 	default:
 		return QVariant();
 	}
@@ -186,13 +212,17 @@ bool LogModel::setData(const QModelIndex& index, const QVariant& value, int role
 //--------------------------------------------------------------------------------------------------
 void LogModel::appendRow(const QString& value)
 {
+	// don't put whitespace lines into the model
+	if (value.trimmed().isEmpty())
+		return;
+
 	this->beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	auto match = m_regex.match(value);
 	
-	// this can happen for raw cout writes that didn't use the macros.
 	if (!match.hasMatch())
 	{
+		// this can happen for raw cout writes that didn't use the macros.
 		QStringList valueList = value.split('\n');
 		m_logData.emplace_back(TimestampLite());
 		m_logData.back().append("INFO");
@@ -206,7 +236,12 @@ void LogModel::appendRow(const QString& value)
 		m_logData.emplace_back(match.captured(1));
 		m_logData.back().append(match.captured(2));
 		m_logData.back().append(match.captured(3).trimmed());
-		m_logData.back().append(match.captured(4).split('\n'));
+		if (!match.captured(4).isEmpty())
+		{
+			QStringList& details = match.captured(4).split('\n');
+			for(auto& detail : details)
+				m_logData.back().append(detail.trimmed());
+		}			
 	}
 
 	this->endInsertRows();

@@ -45,7 +45,8 @@
 //	INCLUDES
 //-------------------------
 
-#include <exception> 
+#include <exception>
+
 #include <StackTrace.h>
 #include <QString>
 
@@ -61,13 +62,14 @@ class StackTraceException : public std::exception
 {
 public:
 
-	StackTraceException(QString errorMessage, QString filename, size_t line, bool fatal = false);
+	StackTraceException(QString errorMessage, QString filename, QString function, size_t line, bool fatal = false);
 	
 	virtual char const* what() const override;
 
 	QString filename() const;
 	QString errorMessage() const;
 	QString errorDetails() const;
+	QString function() const;
 	size_t line() const;
 	QString trace() const;
 	bool fatal() const;
@@ -76,6 +78,7 @@ private:
 
 	QString		m_errorMessage;
 	QString		m_fileName;
+	QString		m_function;
 	size_t		m_line;
 	QByteArray	m_what;
 	StackTrace	m_trace;

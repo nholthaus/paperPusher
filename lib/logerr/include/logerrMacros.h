@@ -114,11 +114,11 @@ namespace logerr
 
 // errors
 #ifndef ERR
-#define ERR(msg) std::this_thread::get_id() == g_mainThreadID ? throw StackTraceException(msg, __FILENAME__, __LINE__) : g_exceptionPtr = std::make_exception_ptr(StackTraceException(msg, __FILENAME__, __LINE__))
+#define ERR(msg) std::this_thread::get_id() == g_mainThreadID ? throw StackTraceException(msg, __FILENAME__, __FUNCTION__, __LINE__) : g_exceptionPtr = std::make_exception_ptr(StackTraceException(msg, __FILENAME__, __FUNCTION__, __LINE__))
 #endif
 
 #ifndef FATAL_ERR
-#define FATAL_ERR(msg) std::this_thread::get_id() == g_mainThreadID ? throw StackTraceException(msg, __FILENAME__, __LINE__, true) : g_exceptionPtr = std::make_exception_ptr(StackTraceException(msg, __FILENAME__, __LINE__, true))
+#define FATAL_ERR(msg) std::this_thread::get_id() == g_mainThreadID ? throw StackTraceException(msg, __FILENAME__, __FUNCTION__, __LINE__, true) : g_exceptionPtr = std::make_exception_ptr(StackTraceException(msg, __FILENAME__, __FUNCTION__, __LINE__, true))
 #endif
 
 // verify
