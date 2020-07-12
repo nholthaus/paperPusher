@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QDir>
 #include <logerrMacros.h>
+#include <ExceptionDialog.h>
 
 //--------------------------------------------------------------------------------------------------
 //	stackTraceSigSev (public ) [static ]
@@ -41,6 +42,11 @@ void stackTraceSIGSEGV(int sig)
 	crashDumpFile.close();
 
 	LOGINFO << APPINFO::name().toLocal8Bit().constData() << " terminated due to a fatal error (application crash). Exiting with code 1..." << std::endl;
+
+	// try to show a dialog
+	ExceptionDialog dialog(QString("%1 Crashed.\nThe application will now terminate.").arg(APPINFO::name()), sDetails, true);
+	dialog.exec();
+
 	std::exit(1);
 }
 

@@ -82,6 +82,7 @@ public:
 	ExceptionDialog(const StackTraceException& msg, bool fatal = false, QWidget* parent = nullptr);
 	ExceptionDialog(const std::exception& exception, bool fatal = false, QWidget* parent = nullptr);
 	ExceptionDialog(const char* msg, bool fatal = false, QWidget* parent = nullptr);
+	ExceptionDialog(QString msg, QString details, bool fatal = false, QWidget* parent = nullptr);
 
 	virtual ~ExceptionDialog();
 

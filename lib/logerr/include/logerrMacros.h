@@ -49,9 +49,11 @@
 #include <thread>
 
 #include <QTimer>
+#include <QMainWindow>
 
 #include <appinfo.h>
 #include <Application.h>
+#include <logDock.h>
 #include <LogStream.h>
 #include <LogFileWriter.h>
 #include <StackTraceException.h>
@@ -76,6 +78,14 @@ namespace logerr
 	{
 		if constexpr (std::is_same_v<QString, std::remove_cv_t<T>>) return value.toStdString();
 		else if constexpr (std::is_same_v<std::string, std::remove_cv_t<T>>) return value;
+	}
+
+	static QMainWindow* getMainWindow()
+	{
+		foreach(QWidget * w, qApp->topLevelWidgets())
+			if (QMainWindow* mainWin = qobject_cast<QMainWindow*>(w))
+				return mainWin;
+		return nullptr;
 	}
 }
 
@@ -151,7 +161,10 @@ int main(int argc, char* argv[]) \
 	\
 	LogStream logStream(std::cout); \
 	LogFileWriter logFileWriter; \
+	LogDock* logDock = new LogDock; \
+	\
 	VERIFY(QObject::connect(&logStream, &LogStream::logEntryReady, &logFileWriter, &LogFileWriter::queueLogEntry)); \
+	VERIFY(QObject::connect(&logStream, &LogStream::logEntryReady, logDock, &LogDock::queueLogEntry)); \
 	\
 	LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started." << std::endl; \
 	\
@@ -162,6 +175,8 @@ int main(int argc, char* argv[]) \
 // END_MAIN
 #ifndef END_MAIN
 #define END_MAIN \
+		auto mw = logerr::getMainWindow(); \
+		if (mw) mw->addDockWidget(Qt::BottomDockWidgetArea, logDock); \
 		app.exec(); \
 	} \
 	catch(StackTraceException& e) \

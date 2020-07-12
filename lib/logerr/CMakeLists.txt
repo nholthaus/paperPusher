@@ -68,7 +68,9 @@ list(APPEND HEADER_FILES
 	include/ExceptionDialog.h
 	include/logerr
 	include/logerrMacros.h
+	include/LogDock.h
 	include/LogFileWriter.h
+	include/LogModel.h
 	include/LogStream.h
 	include/StackTrace.h
 	include/StackTraceException.h
@@ -82,6 +84,8 @@ list(APPEND SOURCE_FILES
 	src/Application.cpp
 	src/ExceptionDialog.cpp
 	src/LogFileWriter.cpp
+	src/LogDock.cpp
+	src/LogModel.cpp
 	src/LogStream.cpp
 	src/StackTrace.cpp
 	src/StackTraceException.cpp

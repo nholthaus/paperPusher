@@ -129,6 +129,39 @@ ExceptionDialog::ExceptionDialog(const char* msg, bool fatal /*= false*/, QWidge
 }
 
 //--------------------------------------------------------------------------------------------------
+//	ExceptionDialog (public ) []
+//--------------------------------------------------------------------------------------------------
+ExceptionDialog::ExceptionDialog(QString msg, QString details, bool fatal /*= false*/, QWidget* parent /*= nullptr*/)
+	: QDialog(parent)
+	, m_fatal(fatal)
+	, m_errorMessage(msg)
+	, m_errorDetails(details)
+	, m_filename("")
+	, m_line("")
+	, m_errorIcon(new QLabel(this))
+	, m_errorMessageLabel(new QLabel(m_errorMessage.prepend("FATAL ERROR: "), this))
+	, m_errorLocationLabel(new QLabel(QString("at: %1:%2").arg(m_filename).arg(m_line), this))
+	, m_detailsGroupBox(new QGroupBox())
+	, m_detailsGroupBoxLayout(new QVBoxLayout)
+	, m_detailsTextBrowser(new CorrectlySizedTextBrowser(this))
+	, m_detailsButtonLayout(new QHBoxLayout)
+	, m_applicationInfoButton(new QPushButton("App Info"))
+	, m_versionInfoButton(new QPushButton("Version Info"))
+	, m_buildInfoButton(new QPushButton("Build Info"))
+	, m_hostInfoButton(new QPushButton("Host Info"))
+	, m_StackTraceButton(new QPushButton("Stack Trace"))
+	, m_showDetailsButton(new QPushButton("Show Details", this))
+	, m_copyButton(new QPushButton("Copy Error", this))
+	, m_okButton(new QPushButton("OK", this))
+	, m_topLayout(new QVBoxLayout)
+	, m_errorLayout(new QHBoxLayout)
+	, m_buttonLayout(new QHBoxLayout)
+{
+	setupUI();
+	m_errorLocationLabel->hide();
+}
+
+//--------------------------------------------------------------------------------------------------
 //	setupUI (public ) []
 //--------------------------------------------------------------------------------------------------
 void ExceptionDialog::setupUI()

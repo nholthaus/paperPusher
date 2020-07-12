@@ -52,8 +52,11 @@ std::streamsize LogStream::xsputn(const char* p, std::streamsize n)
 {
 	m_string.append(p, p + n);
 
-	emit logEntryReady(m_string);
-	m_string.clear();
+	if (*(--m_string.end()) == '\n')
+	{
+		emit logEntryReady(m_string);
+		m_string.clear();
+	}
 
 	return n;
 }

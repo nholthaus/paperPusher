@@ -29,7 +29,7 @@ bool Application::notify(QObject* object, QEvent* event)
 
 	try
 	{
-		retVal = QApplication::notify(object, event);
+		retVal = QApplication::notify(object, event); 
 
 		// rethrow exceptions from threads 
 		std::exception_ptr exceptionPtr = g_exceptionPtr;
