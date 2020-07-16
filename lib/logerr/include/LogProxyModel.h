@@ -51,7 +51,7 @@
 //	FORWARD DECLARATIONS
 //-------------------------
 
-
+class QRegularExpression;
 
 //--------------------------------------------------------------------------------------------------
 //	LogProxyModel
@@ -88,6 +88,7 @@ private:
 	bool m_acceptsInfo = true;
 	bool m_acceptsDebug = true;
 	bool m_acceptsTimestamps = true;
+	QRegularExpression m_regex;
 };
 
 #endif // LogProxyModel_h__

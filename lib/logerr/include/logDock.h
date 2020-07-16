@@ -102,6 +102,7 @@ private:
 	QHBoxLayout*			m_settingsLayout			= nullptr;
 	QGroupBox*				m_typesGroupbox				= nullptr;
 	QGroupBox*				m_settingsGroupBox			= nullptr;
+	QGroupBox*				m_searchGroupBox			= nullptr;
 	
 	QCheckBox*				m_errorCheckBox				= nullptr;
 	QCheckBox*				m_warningCheckBox			= nullptr; 
@@ -113,6 +114,8 @@ private:
 	QLabel*					m_scrollbackLabel			= nullptr;
 	QLineEdit*				m_scrollbackLineEdit		= nullptr;
 	QCheckBox*				m_autoscrollCheckBox		= nullptr;
+
+	QLineEdit*				m_searchLineEdit			= nullptr;
 };
 
 #endif // logDock_h__

@@ -102,9 +102,11 @@ void LogProxyModel::setAcceptsTimestamps(bool val)
 //--------------------------------------------------------------------------------------------------
 bool LogProxyModel::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const
 {
-	QModelIndex source_index = sourceModel()->index(source_row, LogModel::Column::Type, source_parent);
+	QModelIndex source_type_index = sourceModel()->index(source_row, LogModel::Column::Type, source_parent);
+	QModelIndex source_msg_index = sourceModel()->index(source_row, LogModel::Column::Message, source_parent);
 
-	QString source_type = sourceModel()->data(source_index).toString();
+	QString source_type = sourceModel()->data(source_type_index).toString();
+	QString source_message = sourceModel()->data(source_msg_index).toString();
 
 	if (source_type == "ERROR" && !m_acceptsErrors)
 		return false;
@@ -115,5 +117,5 @@ bool LogProxyModel::filterAcceptsRow(int source_row, const QModelIndex& source_p
 	if (source_type == "DEBUG" && !m_acceptsDebug)
 		return false;
 
-	return true;
+	return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 }

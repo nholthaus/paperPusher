@@ -39,6 +39,8 @@ LogDock::LogDock()
 	, m_scrollbackLabel(new QLabel("Scrollback Buffer: "))
 	, m_scrollbackLineEdit(new QLineEdit)
 	, m_autoscrollCheckBox(new QCheckBox("Autoscroll"))
+	, m_searchGroupBox(new QGroupBox("Search"))
+	, m_searchLineEdit(new QLineEdit)
 {
 	QFont monospaceFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
@@ -75,7 +77,13 @@ LogDock::LogDock()
 	m_scrollbackLineEdit->setValidator(new QIntValidator(0, 1000000, m_scrollbackLineEdit));
 	m_scrollbackLineEdit->setText(QString::number(m_logModel->scrollbackBufferSize()));
 
+	m_settingsLayout->addWidget(m_searchGroupBox);
+	m_searchGroupBox->setLayout(new QHBoxLayout);
+	m_searchGroupBox->layout()->addWidget(m_searchLineEdit);
+	m_searchLineEdit->setPlaceholderText("Find...");
+
 	m_logProxyModel->setSourceModel(m_logModel);
+	m_logProxyModel->setFilterKeyColumn(LogModel::Column::Message);
 
 	m_logView->setModel(m_logProxyModel);
 	m_logView->setStyle(QStyleFactory::create("fusion"));
@@ -86,8 +94,8 @@ LogDock::LogDock()
 	m_logView->setAlternatingRowColors(true);
 	m_logView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	VERIFY(connect(m_logView->model(), &QAbstractListModel::rowsInserted, this, &LogDock::autoscroll));
-	VERIFY(connect(m_logView->model(), &QAbstractListModel::rowsRemoved, this, &LogDock::stableScroll));
+	VERIFY(connect(m_logModel, &QAbstractListModel::rowsInserted, this, &LogDock::autoscroll));
+	VERIFY(connect(m_logModel, &QAbstractListModel::rowsRemoved, this, &LogDock::stableScroll));
 
 	VERIFY(connect(m_showTimestampsCheckBox, &QCheckBox::toggled, this, &LogDock::on_showTimestampsCheckBox_toggled));
 	VERIFY(connect(m_scrollbackLineEdit, &QLineEdit::textChanged, this, &LogDock::on_scrollbackBufferSize_changed));
@@ -96,6 +104,8 @@ LogDock::LogDock()
 	VERIFY(connect(m_warningCheckBox, &QCheckBox::toggled, [this] { m_logProxyModel->setAcceptsWarnings(m_warningCheckBox->isChecked()); }));
 	VERIFY(connect(m_infoCheckBox, &QCheckBox::toggled, [this] { m_logProxyModel->setAcceptsInfo(m_infoCheckBox->isChecked()); }));
 	VERIFY(connect(m_debugCheckBox, &QCheckBox::toggled, [this] { m_logProxyModel->setAcceptsDebug(m_debugCheckBox->isChecked()); }));
+
+	VERIFY(connect(m_searchLineEdit, &QLineEdit::textChanged, m_logProxyModel, QOverload<const QString&>::of(&LogProxyModel::setFilterWildcard)));
 }
 
 //--------------------------------------------------------------------------------------------------

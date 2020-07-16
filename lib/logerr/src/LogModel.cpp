@@ -348,7 +348,7 @@ void LogModel::appendRows()
 {
 	QStringList row;
 	std::deque<QStringList> rows;
-	while (!m_joinAll && m_outbox.pop(row))
+	while (m_outbox.pop(row) && !m_joinAll)
 	{
 		rows.push_back(row);
 	}
