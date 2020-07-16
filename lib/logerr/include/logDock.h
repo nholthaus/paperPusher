@@ -45,6 +45,7 @@
 //	INCLUDES
 //-------------------------
 
+#include <concurrentQueue.h>
 #include <string>
 
 #include <QDockWidget> 
@@ -82,14 +83,9 @@ public slots:
 	void queueLogEntry(std::string str);
 
 private slots:
-
-// 	void on_errorCheckBox_toggled();
-// 	void on_warningCheckBox_toggled();
-// 	void on_infoCheckBox_toggled();
-// 	void on_debugCheckBox_toggled();
-// 
+ 
  	void on_showTimestampsCheckBox_toggled();
-
+	void autoscroll();
 
 private:
 
@@ -110,8 +106,6 @@ private:
 
 	QCheckBox*				m_showTimestampsCheckBox	= nullptr;
 	QCheckBox*				m_autoscrollCheckBox		= nullptr;
-
-
 };
 
 #endif // logDock_h__

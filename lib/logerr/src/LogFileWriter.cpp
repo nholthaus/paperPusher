@@ -89,6 +89,5 @@ LogFileWriter::~LogFileWriter()
 void LogFileWriter::queueLogEntry(std::string str)
 {
 	m_logQueue.emplace(std::move(str));
-
 }
 

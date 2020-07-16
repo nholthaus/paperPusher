@@ -45,10 +45,12 @@
 //	INCLUDES
 //-------------------------
 
+#include <mutex>
 #include <string>
 #include <streambuf>
 
 #include <QObject>
+#include <QThreadStorage>
 
 //-------------------------
 //	FORWARD DECLARATIONS
@@ -82,9 +84,9 @@ protected:
 
 private:
 
-	std::ostream&		m_stream;
-	std::streambuf*		m_old_buf;
-	std::string			m_string;
+	std::ostream&						m_stream;
+	std::streambuf*						m_old_buf;
+	QThreadStorage<std::string>			m_string;
 };
 
 

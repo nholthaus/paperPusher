@@ -23,8 +23,8 @@ LogStream::LogStream(std::ostream& stream)
 LogStream::~LogStream()
 {
 	// output anything that is left
-	if (!m_string.empty())
-		emit logEntryReady(m_string);
+	if (!m_string.localData().empty())
+		emit logEntryReady(m_string.localData());
 
 	m_stream.rdbuf(m_old_buf);
 }
@@ -34,12 +34,12 @@ LogStream::~LogStream()
 //--------------------------------------------------------------------------------------------------
 std::basic_streambuf<char>::int_type LogStream::overflow(int_type v)
 {
-	m_string += v;
+	m_string.localData() += v;
 
 	if (v == '\n')
 	{
-		emit logEntryReady(m_string);
-		m_string.clear();
+		emit logEntryReady(m_string.localData());
+		m_string.localData().clear();
 	}
 
 	return v;
@@ -50,12 +50,12 @@ std::basic_streambuf<char>::int_type LogStream::overflow(int_type v)
 //--------------------------------------------------------------------------------------------------
 std::streamsize LogStream::xsputn(const char* p, std::streamsize n)
 {
-	m_string.append(p, p + n);
+	m_string.localData().append(p, p + n);
 
-	if (*(--m_string.end()) == '\n')
+	if (*(--m_string.localData().end()) == '\n')
 	{
-		emit logEntryReady(m_string);
-		m_string.clear();
+		emit logEntryReady(m_string.localData());
+		m_string.localData().clear();
 	}
 
 	return n;

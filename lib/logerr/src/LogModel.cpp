@@ -1,10 +1,16 @@
 #include <LogModel.h>
 #include <timestampLite.h>
+#include <logerr>
+
+#include <chrono>
 
 #include <QApplication>
 #include <QFont>
 #include <QRegularExpression>
 #include <QStyle>
+#include <QTimer>
+
+using namespace std::chrono_literals;
 
 //------------------------------
 //	CONSTANTS
@@ -20,8 +26,15 @@ LogModel::LogModel(QObject* parent)
 	: QAbstractItemModel(parent)
 	, m_regex(regex)
 	, m_columns(QMetaEnum::fromType<Column>())
+	, m_updateTimer(new QTimer(this))
 {
 	m_regex.setPatternOptions(QRegularExpression::MultilineOption | QRegularExpression::DotMatchesEverythingOption);
+	
+	m_inbox.setTimeout(100ms);
+	m_parserThread = std::thread(std::bind(&LogModel::parse, this));
+
+	VERIFY(connect(m_updateTimer, &QTimer::timeout, this, &LogModel::appendRows));
+	m_updateTimer->start(500ms);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -29,7 +42,9 @@ LogModel::LogModel(QObject* parent)
 //--------------------------------------------------------------------------------------------------
 LogModel::~LogModel()
 {
-
+	m_joinAll.store(true);
+	if (m_parserThread.joinable())
+		m_parserThread.join();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,11 +123,17 @@ bool LogModel::hasChildren(const QModelIndex& parent /*= QModelIndex()*/) const
 //--------------------------------------------------------------------------------------------------
 QVariant LogModel::data(const QModelIndex& index, int role /*= Qt::DisplayRole*/) const
 {
+	if (!index.isValid())
+		return QVariant();
+
 	int column = index.column();
 	int row = index.row();
 	int parentRow = index.parent().row();
 	bool child = index.parent().isValid();
 	QString type = !child ? m_logData[row][Column::Type] : m_logData[parentRow][Column::Type];
+
+// 	if (row >= m_logData.size() || column >= m_logData[row].size())
+// 		return QVariant();
 
 	switch (role)
 	{
@@ -253,4 +274,83 @@ void LogModel::appendRow(const QString& value)
 void LogModel::appendRow(const std::string& value)
 {
 	return appendRow(QString::fromStdString(value));
+}
+
+//--------------------------------------------------------------------------------------------------
+//	queueLogEntry (public ) []
+//--------------------------------------------------------------------------------------------------
+void LogModel::queueLogEntry(std::string string)
+{
+	m_inbox.push(std::move(string));
+}
+
+//--------------------------------------------------------------------------------------------------
+//	parse (private ) []
+//--------------------------------------------------------------------------------------------------
+void LogModel::parse()
+{
+	std::string str;
+	while (!m_joinAll)
+	{
+		if (m_inbox.pop(str))
+		{
+			QString value = QString::fromStdString(str);
+
+			// don't put whitespace lines into the model
+			if (value.trimmed().isEmpty())
+				continue;
+
+			auto match = m_regex.match(value);
+
+			QStringList parsedList;
+
+			if (!match.hasMatch())
+			{
+				// this can happen for raw cout writes that didn't use the macros.
+				QStringList valueList = value.split('\n');
+				parsedList.append(TimestampLite());
+				parsedList.append("INFO");
+				parsedList.append(valueList.front().trimmed());
+				valueList.pop_front();
+				if (!valueList.isEmpty())
+					parsedList.append(valueList);
+			}
+			else
+			{
+				parsedList.append(match.captured(1));
+				parsedList.append(match.captured(2));
+				parsedList.append(match.captured(3).trimmed());
+				if (!match.captured(4).isEmpty())
+				{
+					QStringList& details = match.captured(4).split('\n');
+					for (auto& detail : details)
+						parsedList.append(detail.trimmed());
+				}
+			}
+
+			m_outbox.emplace(std::move(parsedList));
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------------------------
+//	appendRows (private ) []
+//--------------------------------------------------------------------------------------------------
+void LogModel::appendRows()
+{
+	QStringList row;
+	std::deque<QStringList> rows;
+	while (!m_joinAll && m_outbox.pop(row))
+	{
+		rows.push_back(row);
+	}
+
+	if(!rows.empty())
+	{
+		auto first = m_logData.size();
+		auto last = m_logData.size() + rows.size() - 1;
+		this->beginInsertRows(QModelIndex(), first, last);
+		m_logData.insert(m_logData.end(), rows.begin(), rows.end());
+		this->endInsertRows();
+	}
 }

@@ -163,8 +163,8 @@ int main(int argc, char* argv[]) \
 	LogFileWriter logFileWriter; \
 	LogDock* logDock = new LogDock; \
 	\
-	VERIFY(QObject::connect(&logStream, &LogStream::logEntryReady, &logFileWriter, &LogFileWriter::queueLogEntry)); \
-	VERIFY(QObject::connect(&logStream, &LogStream::logEntryReady, logDock, &LogDock::queueLogEntry)); \
+	VERIFY(QObject::connect(&logStream, &LogStream::logEntryReady, &logFileWriter, &LogFileWriter::queueLogEntry, Qt::QueuedConnection)); \
+	VERIFY(QObject::connect(&logStream, &LogStream::logEntryReady, logDock, &LogDock::queueLogEntry, Qt::QueuedConnection)); \
 	\
 	LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started." << std::endl; \
 	\

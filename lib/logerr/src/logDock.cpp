@@ -75,6 +75,8 @@ LogDock::LogDock()
 	m_logView->setAlternatingRowColors(true);
 	m_logView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
+	VERIFY(connect(m_logView->model(), &QAbstractListModel::rowsInserted, this, &LogDock::autoscroll));
+
 	VERIFY(connect(m_showTimestampsCheckBox, &QCheckBox::toggled, this, &LogDock::on_showTimestampsCheckBox_toggled));
 
 	VERIFY(connect(m_errorCheckBox, &QCheckBox::toggled, [this] { m_logProxyModel->setAcceptsErrors(m_errorCheckBox->isChecked()); }));
@@ -96,9 +98,8 @@ LogDock::~LogDock()
 //--------------------------------------------------------------------------------------------------
 void LogDock::queueLogEntry(std::string str)
 {
-	m_logModel->appendRow(str);
-	if (m_autoscrollCheckBox->isChecked())
-		m_logView->scrollToBottom();
+	m_logModel->queueLogEntry(str);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,5 +108,14 @@ void LogDock::queueLogEntry(std::string str)
 void LogDock::on_showTimestampsCheckBox_toggled()
 {
 	m_logView->setColumnHidden(0, !m_showTimestampsCheckBox->isChecked());
+}
+
+//--------------------------------------------------------------------------------------------------
+//	autoscroll (private ) []
+//--------------------------------------------------------------------------------------------------
+void LogDock::autoscroll()
+{
+	if (m_autoscrollCheckBox->isChecked())
+	m_logView->scrollToBottom();
 }
 

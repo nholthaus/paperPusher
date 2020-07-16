@@ -45,8 +45,11 @@
 //	INCLUDES
 //-------------------------
 
+#include <concurrentQueue.h>
+
 #include <deque>
 #include <string>
+#include <thread>
 
 #include <QAbstractItemModel>
 #include <QMetaEnum>
@@ -58,6 +61,7 @@
 //-------------------------
 
 class QModelIndex;
+class QTimer;
 class QVariant;
 
 
@@ -97,11 +101,28 @@ public:
 	virtual void appendRow(const QString& value);
 	virtual void appendRow(const std::string& value);
 
+public slots:
+
+	void queueLogEntry(std::string string);
+
+private:
+
+	void parse();
+	void appendRows();
+
 protected:
 
 	QRegularExpression				m_regex;
 	std::deque<QStringList>			m_logData;
 	QMetaEnum						m_columns;
+
+	ConcurrentQueue<std::string>	m_inbox;
+	ConcurrentQueue<QStringList>	m_outbox;
+	QTimer*							m_updateTimer;
+	std::thread						m_parserThread;
+
+	std::atomic_bool				m_joinAll = false;
+
 
 };
 

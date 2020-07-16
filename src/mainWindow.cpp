@@ -4,6 +4,13 @@
 #include <mainWindow.h>
 #include <logerr>
 
+#include <thread>
+#include <chrono>
+
+std::atomic<int> count1;
+std::atomic<int> count2;
+using namespace std::chrono_literals;
+
 //--------------------------------------------------------------------------------------------------
 //	MainWindow (public ) []
 //--------------------------------------------------------------------------------------------------
@@ -31,7 +38,9 @@ void MainWindow::initialize()
 	// the UI to not be fully constructed.
 	//**********************************************************************************************
 
-	ERR("hello");
-
+	//ERR("hello");
+	
+	m_thread1 = std::thread([this] { while (true) { LOGINFO << "Thread One " << count1.fetch_add(1) << "iteration" << std::endl; } });
+	m_thread2 = std::thread([this] { while (true) { LOGINFO << "Thread Two " << count2.fetch_add(1) << "iteration" << std::endl; } });
 }
 

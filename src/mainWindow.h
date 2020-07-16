@@ -27,6 +27,7 @@
 //-------------------------
 
 #include <QMainWindow> 
+#include <thread>
 
 //-------------------------
 //	FORWARD DECLARATIONS
@@ -49,6 +50,8 @@ public:
 	
 protected:
 
+	std::thread m_thread1;
+	std::thread m_thread2;
 	
 
 };
