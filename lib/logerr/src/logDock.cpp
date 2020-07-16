@@ -15,6 +15,7 @@
 #include <QLineEdit>
 #include <QScrollBar>
 #include <QStyleFactory>
+#include <QToolButton>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -41,6 +42,8 @@ LogDock::LogDock()
 	, m_autoscrollCheckBox(new QCheckBox("Autoscroll"))
 	, m_searchGroupBox(new QGroupBox("Search"))
 	, m_searchLineEdit(new QLineEdit)
+	, m_matchCaseButton(new QToolButton)
+	, m_regexButton(new QToolButton)
 {
 	QFont monospaceFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
@@ -80,10 +83,22 @@ LogDock::LogDock()
 	m_settingsLayout->addWidget(m_searchGroupBox);
 	m_searchGroupBox->setLayout(new QHBoxLayout);
 	m_searchGroupBox->layout()->addWidget(m_searchLineEdit);
+	m_searchGroupBox->layout()->addWidget(m_matchCaseButton);
+	m_searchGroupBox->layout()->addWidget(m_regexButton);
+
 	m_searchLineEdit->setPlaceholderText("Find...");
+	m_matchCaseButton->setToolTip("Match Case");
+	m_matchCaseButton->setCheckable(true);
+	m_matchCaseButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	m_matchCaseButton->setText("Aa");
+	m_regexButton->setToolTip("Use Regular Expression");
+	m_regexButton->setCheckable(true);
+	m_regexButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	m_regexButton->setText(".*");
 
 	m_logProxyModel->setSourceModel(m_logModel);
 	m_logProxyModel->setFilterKeyColumn(LogModel::Column::Message);
+	m_logProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
 	m_logView->setModel(m_logProxyModel);
 	m_logView->setStyle(QStyleFactory::create("fusion"));
@@ -105,7 +120,8 @@ LogDock::LogDock()
 	VERIFY(connect(m_infoCheckBox, &QCheckBox::toggled, [this] { m_logProxyModel->setAcceptsInfo(m_infoCheckBox->isChecked()); }));
 	VERIFY(connect(m_debugCheckBox, &QCheckBox::toggled, [this] { m_logProxyModel->setAcceptsDebug(m_debugCheckBox->isChecked()); }));
 
-	VERIFY(connect(m_searchLineEdit, &QLineEdit::textChanged, m_logProxyModel, QOverload<const QString&>::of(&LogProxyModel::setFilterWildcard)));
+	VERIFY(connect(m_searchLineEdit, &QLineEdit::textChanged, this, &LogDock::search));
+	VERIFY(connect(m_matchCaseButton, &QToolButton::clicked, [this](bool checked) { checked ? m_logProxyModel->setFilterCaseSensitivity(Qt::CaseSensitive) : m_logProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive); }));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,5 +184,16 @@ void LogDock::stableScroll()
 			m_logView->scrollTo(m_logView->model()->index(iRowIndex + iRowCount, 0), QAbstractItemView::PositionAtTop);
 		}
 	}
+}
+
+//--------------------------------------------------------------------------------------------------
+//	search (private ) []
+//--------------------------------------------------------------------------------------------------
+void LogDock::search(const QString& value)
+{
+	if (m_regexButton->isChecked())
+		m_logProxyModel->setFilterRegularExpression(value);
+	else
+		m_logProxyModel->setFilterWildcard(value);
 }
 

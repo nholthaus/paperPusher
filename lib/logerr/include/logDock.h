@@ -63,6 +63,7 @@ class QGroupBox;
 class QHBoxLayout;
 class QLabel;
 class QLineEdit;
+class QToolButton;
 class QTreeView;
 class QVBoxLayout;
 
@@ -90,6 +91,7 @@ private slots:
  	void on_showTimestampsCheckBox_toggled();
 	void autoscroll();
 	void stableScroll();
+	void search(const QString& value);
 
 private:
 
@@ -116,6 +118,8 @@ private:
 	QCheckBox*				m_autoscrollCheckBox		= nullptr;
 
 	QLineEdit*				m_searchLineEdit			= nullptr;
+	QToolButton*			m_matchCaseButton			= nullptr;
+	QToolButton*			m_regexButton				= nullptr;
 };
 
 #endif // logDock_h__
