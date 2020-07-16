@@ -88,9 +88,9 @@ public:
 	LogModel(QObject* parent = nullptr);
 	virtual ~LogModel();
 	
-	virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
+	virtual QModelIndex	index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
 	virtual QModelIndex parent(const QModelIndex& child) const override;
-	virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+	virtual int	rowCount(const QModelIndex& parent = QModelIndex()) const override;
 	virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 	virtual bool hasChildren(const QModelIndex& parent = QModelIndex()) const override;
 	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -104,6 +104,8 @@ public:
 public slots:
 
 	void queueLogEntry(std::string string);
+	size_t scrollbackBufferSize() const noexcept;
+	void setScrollbackBufferSize(size_t size);
 
 private:
 
@@ -122,6 +124,9 @@ protected:
 	std::thread						m_parserThread;
 
 	std::atomic_bool				m_joinAll = false;
+
+	size_t							m_scrollbackBufferSize = 10000;
+	size_t							m_numRemoved = 0;			// The number of entries removed from the model for exceeding the scroll buffer size
 
 
 };

@@ -9,7 +9,11 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QIntValidator>
+#include <QLabel>
 #include <QLayout>
+#include <QLineEdit>
+#include <QScrollBar>
 #include <QStyleFactory>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -32,6 +36,8 @@ LogDock::LogDock()
 	, m_infoCheckBox(new QCheckBox("Info"))
 	, m_debugCheckBox(new QCheckBox("Debug"))
 	, m_showTimestampsCheckBox(new QCheckBox("Timestamps"))
+	, m_scrollbackLabel(new QLabel("Scrollback Buffer: "))
+	, m_scrollbackLineEdit(new QLineEdit)
 	, m_autoscrollCheckBox(new QCheckBox("Autoscroll"))
 {
 	QFont monospaceFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
@@ -62,7 +68,12 @@ LogDock::LogDock()
 	m_autoscrollCheckBox->setChecked(true);
 
 	m_settingsGroupBox->setLayout(new QHBoxLayout);
+	m_settingsGroupBox->layout()->addWidget(m_scrollbackLabel);
+	m_settingsGroupBox->layout()->addWidget(m_scrollbackLineEdit);
 	m_settingsGroupBox->layout()->addWidget(m_autoscrollCheckBox);
+
+	m_scrollbackLineEdit->setValidator(new QIntValidator(0, 1000000, m_scrollbackLineEdit));
+	m_scrollbackLineEdit->setText(QString::number(m_logModel->scrollbackBufferSize()));
 
 	m_logProxyModel->setSourceModel(m_logModel);
 
@@ -76,8 +87,10 @@ LogDock::LogDock()
 	m_logView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	VERIFY(connect(m_logView->model(), &QAbstractListModel::rowsInserted, this, &LogDock::autoscroll));
+	VERIFY(connect(m_logView->model(), &QAbstractListModel::rowsRemoved, this, &LogDock::stableScroll));
 
 	VERIFY(connect(m_showTimestampsCheckBox, &QCheckBox::toggled, this, &LogDock::on_showTimestampsCheckBox_toggled));
+	VERIFY(connect(m_scrollbackLineEdit, &QLineEdit::textChanged, this, &LogDock::on_scrollbackBufferSize_changed));
 
 	VERIFY(connect(m_errorCheckBox, &QCheckBox::toggled, [this] { m_logProxyModel->setAcceptsErrors(m_errorCheckBox->isChecked()); }));
 	VERIFY(connect(m_warningCheckBox, &QCheckBox::toggled, [this] { m_logProxyModel->setAcceptsWarnings(m_warningCheckBox->isChecked()); }));
@@ -99,7 +112,14 @@ LogDock::~LogDock()
 void LogDock::queueLogEntry(std::string str)
 {
 	m_logModel->queueLogEntry(str);
+}
 
+//--------------------------------------------------------------------------------------------------
+//	on_scrollbackBufferSize_changed (private ) []
+//--------------------------------------------------------------------------------------------------
+void LogDock::on_scrollbackBufferSize_changed()
+{
+	m_logModel->setScrollbackBufferSize(m_scrollbackLineEdit->text().toULongLong());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +136,27 @@ void LogDock::on_showTimestampsCheckBox_toggled()
 void LogDock::autoscroll()
 {
 	if (m_autoscrollCheckBox->isChecked())
-	m_logView->scrollToBottom();
+		m_logView->scrollToBottom();
+}
+
+//--------------------------------------------------------------------------------------------------
+//	ensureVisible (private ) []
+//--------------------------------------------------------------------------------------------------
+void LogDock::stableScroll()
+{
+	if (!m_autoscrollCheckBox->isChecked())
+	{
+		QScrollBar* verticalScrollBar = m_logView->verticalScrollBar();
+		bool bScrolledToTop = verticalScrollBar->value() == verticalScrollBar->minimum();
+		int iRowIndex = m_logView->indexAt(QPoint(8, 8)).row();
+		int iRowCount = m_logView->model()->rowCount();
+
+		// move scroll bar to keep current items in view (if not scrolled to the top)
+		if (!bScrolledToTop)
+		{
+			iRowCount = m_logView->model()->rowCount() - iRowCount;
+			m_logView->scrollTo(m_logView->model()->index(iRowIndex + iRowCount, 0), QAbstractItemView::PositionAtTop);
+		}
+	}
 }
 

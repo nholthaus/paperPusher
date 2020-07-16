@@ -146,7 +146,7 @@ namespace logerr
 #define MAIN \
 int main(int argc, char* argv[]) \
 { \
-	std::signal(SIGSEGV, stackTraceSIGSEGV); \
+	/*std::signal(SIGSEGV, stackTraceSIGSEGV);*/ \
 	\
 	int code = 0; \
 	g_mainThreadID = std::this_thread::get_id(); \

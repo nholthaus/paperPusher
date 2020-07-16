@@ -128,12 +128,12 @@ QVariant LogModel::data(const QModelIndex& index, int role /*= Qt::DisplayRole*/
 
 	int column = index.column();
 	int row = index.row();
-	int parentRow = index.parent().row();
+	int parentRow = index.parent().row() - m_numRemoved;
 	bool child = index.parent().isValid();
 	QString type = !child ? m_logData[row][Column::Type] : m_logData[parentRow][Column::Type];
 
-// 	if (row >= m_logData.size() || column >= m_logData[row].size())
-// 		return QVariant();
+	QFont boldFont;
+	boldFont.setWeight(QFont::Bold);
 
 	switch (role)
 	{
@@ -145,23 +145,14 @@ QVariant LogModel::data(const QModelIndex& index, int role /*= Qt::DisplayRole*/
 		else
 			return m_logData[parentRow][row + columnCount()];
 		break;
-// 	case Qt::DecorationRole:
-// 		if (m_logData[index.row()][Column::Type] == "ERROR")
-// 			return qApp->style()->standardIcon(QStyle::SP_MessageBoxCritical);
-// 		else
-// 			return QVariant();
-// 		break;
  	case Qt::FontRole:
 		if (type != "INFO" && column != Column::Timestamp)
-		{
-			QFont font;
-			font.setWeight(QFont::Bold);
-			return font;
-		}
-		else
-			return QVariant();
+			return boldFont;
+		return QVariant();
 	case Qt::ForegroundRole:
 		if (column == Column::Timestamp && type == "INFO")
+			return QBrush(Qt::gray);
+		if (column == Column::Type && type == "INFO")
 			return QBrush(Qt::gray);
 		if (type == "ERROR")
 			return QBrush(Qt::red);
@@ -285,6 +276,23 @@ void LogModel::queueLogEntry(std::string string)
 }
 
 //--------------------------------------------------------------------------------------------------
+//	scrollbackBufferSize (public ) []
+//--------------------------------------------------------------------------------------------------
+size_t LogModel::scrollbackBufferSize() const noexcept
+{
+	return m_scrollbackBufferSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+//	setScrollbackBufferSize (public ) []
+//--------------------------------------------------------------------------------------------------
+void LogModel::setScrollbackBufferSize(size_t size)
+{
+	m_scrollbackBufferSize = size;
+	TODO("check the model size and remove stuff if there's too much");
+}
+
+//--------------------------------------------------------------------------------------------------
 //	parse (private ) []
 //--------------------------------------------------------------------------------------------------
 void LogModel::parse()
@@ -347,8 +355,39 @@ void LogModel::appendRows()
 
 	if(!rows.empty())
 	{
+		// check if we exceed the scroll buffer, and remove stuff if so.
+		// ensure there are always at least scroll buffer size entries. Otherwise once the buffer fills up the list view
+		// will appear to the user to be 'auto-scrolling' all the time
+		auto totalSize = m_logData.size() + rows.size();
+		if (totalSize > 2 * m_scrollbackBufferSize) 
+		{
+			auto numToRemove = totalSize - scrollbackBufferSize();
+			m_numRemoved += numToRemove;
+			totalSize -= numToRemove;
+
+			bool reset = false;
+
+			// 3 cases: remove all from the current list, some from both, or all from the new rows
+			if (!m_logData.empty())
+			{
+				auto numToRemoveFromHere = std::min(numToRemove, m_logData.size());
+				this->beginRemoveRows(QModelIndex(), 0, numToRemoveFromHere - 1);
+				m_logData.erase(m_logData.begin(), m_logData.begin() + numToRemoveFromHere);
+				emit this->endRemoveRows();
+				numToRemove -= numToRemoveFromHere;
+			}
+			if (numToRemove && !rows.empty())
+			{
+				auto numToRemoveFromHere = std::min(numToRemove, rows.size());
+				rows.erase(rows.begin(), rows.begin() + numToRemoveFromHere);
+				numToRemove -= numToRemoveFromHere;
+			}
+
+			assert(numToRemove == 0);					
+		}
+
 		auto first = m_logData.size();
-		auto last = m_logData.size() + rows.size() - 1;
+		auto last = totalSize - 1;
 		this->beginInsertRows(QModelIndex(), first, last);
 		m_logData.insert(m_logData.end(), rows.begin(), rows.end());
 		this->endInsertRows();

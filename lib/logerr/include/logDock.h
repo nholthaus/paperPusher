@@ -61,6 +61,8 @@ class QCheckBox;
 class QFrame;
 class QGroupBox;
 class QHBoxLayout;
+class QLabel;
+class QLineEdit;
 class QTreeView;
 class QVBoxLayout;
 
@@ -84,8 +86,10 @@ public slots:
 
 private slots:
  
+	void on_scrollbackBufferSize_changed();
  	void on_showTimestampsCheckBox_toggled();
 	void autoscroll();
+	void stableScroll();
 
 private:
 
@@ -105,6 +109,9 @@ private:
 	QCheckBox*				m_debugCheckBox				= nullptr;
 
 	QCheckBox*				m_showTimestampsCheckBox	= nullptr;
+
+	QLabel*					m_scrollbackLabel			= nullptr;
+	QLineEdit*				m_scrollbackLineEdit		= nullptr;
 	QCheckBox*				m_autoscrollCheckBox		= nullptr;
 };
 

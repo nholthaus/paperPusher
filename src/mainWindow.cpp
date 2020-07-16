@@ -40,7 +40,7 @@ void MainWindow::initialize()
 
 	//ERR("hello");
 	
-	m_thread1 = std::thread([this] { while (true) { LOGINFO << "Thread One " << count1.fetch_add(1) << "iteration" << std::endl; } });
-	m_thread2 = std::thread([this] { while (true) { LOGINFO << "Thread Two " << count2.fetch_add(1) << "iteration" << std::endl; } });
+	m_thread1 = std::thread([this] { while (true) { LOGINFO << "Thread One " << count1.fetch_add(1) << "iteration" << std::endl; std::this_thread::sleep_for(1ms);} });
+	m_thread2 = std::thread([this] { while (true) { LOGINFO << "Thread Two " << count2.fetch_add(1) << "iteration" << std::endl; std::this_thread::sleep_for(1ms);} });
 }
 
