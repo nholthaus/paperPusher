@@ -77,7 +77,6 @@ list(APPEND HEADER_FILES
 	include/StackTraceException.h
 	include/StackTraceSIGSEGV.h
 	include/timestampLite.h
-	${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h
 )
 
 # .cpp files
