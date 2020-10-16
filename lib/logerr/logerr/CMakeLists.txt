@@ -43,7 +43,7 @@ list(APPEND SOURCE_FILES
 if (MSVC)
     list(APPEND SOURCE_FILES ${HEADER_FILES})
 else ()
-#    list(APPEND SOURCE_FILES src/backtraceSymbols.cpp)
+    list(APPEND SOURCE_FILES src/backtraceSymbols.cpp)
 endif ()
 
 #-------------------------------------------------------------------------------
@@ -55,8 +55,8 @@ endif ()
 # to force version.cmake to always be re-run before the build
 ADD_CUSTOM_TARGET(
         gitInfo ALL
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gitinfo.h.in ${CMAKE_CURRENT_BINARY_DIR}/gitInfo.h.in
-        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/gitInfo.cmake
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gitinfo.h.in ${CMAKE_CURRENT_BINARY_DIR}/gitinfo.h.in
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/gitinfo.cmake
 )
 
 #-------------------------------------------------------------------------------
@@ -64,9 +64,9 @@ ADD_CUSTOM_TARGET(
 #-------------------------------------------------------------------------------
 
 if (NOT WIN32)
-    find_package(Bfd REQUIRED)
-    if (NOT LIBBFD_FOUND)
-        message(FATAL_ERROR "Install binutils using your systems package manager (on ubuntu: `sudo apt install binutils-dev libiberty-dev`)")
+    find_package(Bfd)
+    if (NOT Bfd_FOUND)
+        message(FATAL_ERROR "Bfd not found. Install binutils using your systems package manager (on ubuntu: `sudo apt install binutils-dev libiberty-dev`)")
     endif ()
 endif ()
 
@@ -117,7 +117,7 @@ configure_file(appinfo.cpp.in appinfo.cpp @ONLY NEWLINE_STYLE UNIX)
 if (WIN32)
     list(APPEND LIBRARIES wsock32 ws2_32)
 else (WIN32)
-#    list(APPEND LIBRARIES bfd)
+    list(APPEND LIBRARIES bfd)
 endif (WIN32)
 
 if (BUILD_WITH_QT)
@@ -135,7 +135,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_BINARY_DIR}")
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES} ${RESOURCES})
 
 # link libraries
-target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARIES})
 
 # include directories
 set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR}")
