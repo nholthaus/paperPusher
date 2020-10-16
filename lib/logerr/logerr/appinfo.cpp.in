@@ -29,9 +29,9 @@
 //----------------------------
 
 // clang-format off
-constexpr bool IS_WIN   = false;
-constexpr bool IS_MAC   = false;
-constexpr bool IS_LINUX = true;
+constexpr bool IS_WIN   = @IS_WIN@;
+constexpr bool IS_MAC   = @IS_MAC@;
+constexpr bool IS_LINUX = @IS_LINUX@;
 // clang-format on
 
 //----------------------------
