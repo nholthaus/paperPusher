@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 // The intent is for this to be defined (or not) by CMake. If you're not using CMake, define this
 // yourself (maybe based on the _MSV_VER or __GNUC__ macros)
@@ -21,8 +22,6 @@
 #include <cxxabi.h>
 #include <execinfo.h>
 #endif    // _MSC_VER
-
-#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 //	StackTrace ( public )

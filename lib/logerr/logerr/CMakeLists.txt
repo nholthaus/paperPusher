@@ -139,7 +139,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARIES})
 
 # include directories
 set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR}")
-if (NOT WIN32)
+if (WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_COMPILE_OPTIONS "/Zi"
+            INTERFACE_LINK_OPTIONS "/DEBUG;/OPT:REF;/OPT:ICF")
+else ()
     set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_COMPILE_OPTIONS -g)
 endif ()
 
