@@ -3,12 +3,60 @@
 //----------------------------
 
 #include "backtraceSymbols.h"
+#include <logerr>
+
+// C
+#include <bfd.h>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <dlfcn.h>
+#include <execinfo.h>
+#include <link.h>
 
 // std
 #include <iostream>
 #include <sstream>
-#include <vector>
-#include <utility>
+
+class FileMatch
+{
+public:
+	explicit FileMatch(void* addr)
+	    : mAddress(addr)
+	{
+	}
+
+	void*       mAddress;
+	const char* mFile = nullptr;
+	void*       mBase = nullptr;
+};
+
+class FileLineDesc
+{
+public:
+	FileLineDesc(asymbol** syms, bfd_vma pc)
+	    : mPc(pc)
+	    , mFound(false)
+	    , mSyms(syms)
+	{
+	}
+
+	void findAddressInSection(bfd* abfd, asection* section);
+
+	bfd_vma      mPc;
+	std::string  mFilename;
+	std::string  mFunctionname;
+	unsigned int mLine  = 0;
+	bool         mFound = false;
+	asymbol**    mSyms  = nullptr;
+};
+
+static int                                              findMatchingFile(struct dl_phdr_info* info, size_t size, void* data);
+static asymbol**                                        kstSlurpSymtab(bfd* abfd, const char* fileName);
+static std::vector<std::pair<std::string, std::string>> translateAddressesBuf(bfd* abfd, bfd_vma* addr, int numAddr, asymbol** syms);
+static std::vector<std::pair<std::string, std::string>> processFile(const char* fileName, bfd_vma* addr, int naddr);
+static void                                             findAddressInSection(bfd* abfd, asection* section, void* data);
 
 //--------------------------------------------------------------------------------------------------
 //	findMatchingFile (public ) [static ]
@@ -43,8 +91,8 @@ asymbol** kstSlurpSymtab(bfd* abfd, const char* fileName)
 {
 	if (!(bfd_get_file_flags(abfd) & HAS_SYMS))
 	{
-		printf("Error bfd file \"%s\" flagged as having no symbols.\n", fileName);
-		return NULL;
+		LOGERR << "Error bfd file " << fileName << " flagged as having no symbols." << std::endl;
+		return nullptr;
 	}
 
 	asymbol**    syms;
@@ -56,8 +104,8 @@ asymbol** kstSlurpSymtab(bfd* abfd, const char* fileName)
 
 	if (symcount < 0)
 	{
-		printf("Error bfd file \"%s\", found no symbols.\n", fileName);
-		return NULL;
+		LOGERR << "Error bfd file " << fileName << " found no symbols." << std::endl;
+		return nullptr;
 	}
 
 	return syms;
@@ -66,109 +114,87 @@ asymbol** kstSlurpSymtab(bfd* abfd, const char* fileName)
 //--------------------------------------------------------------------------------------------------
 //	translateAddressesBuf (public ) [static ]
 //--------------------------------------------------------------------------------------------------
-char** translateAddressesBuf(bfd* abfd, bfd_vma* addr, int numAddr, asymbol** syms)
+std::vector<std::pair<std::string, std::string>> translateAddressesBuf(bfd* abfd, bfd_vma* addr, int numAddr, asymbol** syms)
 {
 	std::vector<std::pair<std::string, std::string>> addressBuffer;
-	char**  ret_buf = NULL;
-	int32_t total   = 0;
 
-	char    b;
-	char*   buf = &b;
-	int32_t len = 0;
-
-	for (uint32_t state = 0; state < 2; state++)
+	for (int32_t i = 0; i < numAddr; i++)
 	{
-		if (state == 1)
+		FileLineDesc desc(syms, addr[i]);
+		bfd_map_over_sections(abfd, findAddressInSection, (void*) &desc);
+
+		if (!desc.mFound)
 		{
-			ret_buf = (char**) malloc(total + (sizeof(char*) * numAddr));
-			buf     = (char*) (ret_buf + numAddr);
-			len     = total;
+			std::stringstream ss;
+			ss << "[0x" << std::hex << addr[i] << "]";
+			addressBuffer.emplace_back("??:0", ss.str());
 		}
-
-		for (int32_t i = 0; i < numAddr; i++)
+		else
 		{
-			FileLineDesc desc(syms, addr[i]);
 
-			if (state == 1)
-				ret_buf[i] = buf;
+			std::string& functionName = desc.mFunctionname;
+			std::string& filename     = desc.mFilename;
 
-			bfd_map_over_sections(abfd, findAddressInSection, (void*) &desc);
-
-			if (!desc.mFound)
+			if (functionName.empty())
+				functionName = "??";
+			if (!desc.mFilename.empty())
 			{
-				total += snprintf(buf, len, "[0x%llx] \?\? \?\?:0", (long long unsigned int) addr[i]) + 1;
+				std::stringstream ss;
+				ss << desc.mFilename;
+				while (getline(ss, filename, '/')) {};
+				filename.append(":").append(std::to_string(desc.mLine));
 			}
-			else
-			{
 
-				std::string& name     = desc.mFunctionname;
-				std::string& filename = desc.mFilename;
-
-				if (name.empty())
-					name = "??";
-				if (!desc.mFilename.empty())
-				{
-					std::stringstream ss;
-					ss << desc.mFilename;
-					while (getline(ss, filename, '/')) {};
-				}
-
-				addressBuffer.emplace_back(filename, name);
-				total += snprintf(buf, len, "%s:%u %s", filename.empty() ? "??" : filename.data(), desc.mLine, name.data()) + 1;
-
-			}
-		}
-
-		if (state == 1)
-		{
-			buf = buf + total + 1;
+			addressBuffer.emplace_back(filename, functionName);
 		}
 	}
 
-	return ret_buf;
+	return addressBuffer;
 }
 
 //--------------------------------------------------------------------------------------------------
 //	processFile (public ) [static ]
 //--------------------------------------------------------------------------------------------------
-char** processFile(const char* fileName, bfd_vma* addr, int naddr)
+std::vector<std::pair<std::string, std::string>> processFile(const char* fileName, bfd_vma* addr, int naddr)
 {
+	std::vector<std::pair<std::string, std::string>> ret_buf;
+
 	bfd* abfd = bfd_openr(fileName, NULL);
 	if (!abfd)
 	{
-		printf("Error opening bfd file \"%s\"\n", fileName);
-		return NULL;
+		LOGERR << "Error opening bfd file  " << fileName << std::endl;
+		return ret_buf;
 	}
 
 	if (bfd_check_format(abfd, bfd_archive))
 	{
-		printf("Cannot get addresses from archive \"%s\"\n", fileName);
+		LOGERR << "Cannot get addresses from archive  " << fileName << std::endl;
 		bfd_close(abfd);
-		return NULL;
+		return ret_buf;
 	}
 
 	char** matching;
 	if (!bfd_check_format_matches(abfd, bfd_object, &matching))
 	{
-		printf("Format does not match for archive \"%s\"\n", fileName);
+		LOGERR << "Format does not match for archive  " << fileName << std::endl;
 		bfd_close(abfd);
-		return NULL;
+		return ret_buf;
 	}
 
 	asymbol** syms = kstSlurpSymtab(abfd, fileName);
 	if (!syms)
 	{
-		printf("Failed to read symbol table for archive \"%s\"\n", fileName);
+		LOGERR << "Failed to read symbol table for archive  " << fileName << std::endl;
 		bfd_close(abfd);
-		return NULL;
+		return ret_buf;
 	}
 
-	char** retBuf = translateAddressesBuf(abfd, addr, naddr, syms);
+	ret_buf = translateAddressesBuf(abfd, addr, naddr, syms);
 
 	free(syms);
 
 	bfd_close(abfd);
-	return retBuf;
+	return ret_buf;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,22 +202,21 @@ char** processFile(const char* fileName, bfd_vma* addr, int naddr)
 //--------------------------------------------------------------------------------------------------
 void findAddressInSection(bfd* abfd, asection* section, void* data)
 {
-	FileLineDesc* desc = (FileLineDesc*) data;
+	auto* desc = (FileLineDesc*) data;
 	return desc->findAddressInSection(abfd, section);
 }
 
 //--------------------------------------------------------------------------------------------------
 //	backtraceSymbols (public ) []
 //--------------------------------------------------------------------------------------------------
-char** backtraceSymbols(void* const* addrList, int numAddr)
+std::vector<std::pair<std::string, std::string>> backtraceSymbols(void* const* addrList, int numAddr)
 {
-	char*** locations = (char***) alloca(sizeof(char**) * numAddr);
+	std::vector<std::pair<std::string, std::string>> symbols;
 
 	// initialize the bfd library
 	bfd_init();
 
-	int      total = 0;
-	uint32_t idx   = numAddr;
+	uint32_t idx = numAddr;
 	for (int32_t i = 0; i < numAddr; i++)
 	{
 		// find which executable, or library the symbol is from
@@ -200,31 +225,23 @@ char** backtraceSymbols(void* const* addrList, int numAddr)
 
 		// adjust the address in the global space of your binary to an
 		// offset in the relevant library
-		bfd_vma addr = (bfd_vma)(addrList[idx]);
+		auto addr = (bfd_vma)(addrList[idx]);
 		addr -= (bfd_vma)(match.mBase);
 
 		// lookup the symbol
 		if (match.mFile && strlen(match.mFile))
-			locations[idx] = processFile(match.mFile, &addr, 1);
+		{
+			auto&& val = processFile(match.mFile, &addr, 1);
+			symbols.insert(symbols.end(), std::make_move_iterator(val.begin()), std::make_move_iterator(val.end()));
+		}
 		else
-			locations[idx] = processFile("/proc/self/exe", &addr, 1);
-
-		total += strlen(locations[idx][0]) + 1;
+		{
+			auto&& val = processFile("/proc/self/exe", &addr, 1);
+			symbols.insert(symbols.end(), std::make_move_iterator(val.begin()), std::make_move_iterator(val.end()));
+		}
 	}
 
-	// return all the file and line information for each address
-	char** final     = (char**) malloc(total + (numAddr * sizeof(char*)));
-	char*  f_strings = (char*) (final + numAddr);
-
-	for (int32_t i = 0; i < numAddr; i++)
-	{
-		strcpy(f_strings, locations[i][0]);
-		free(locations[i]);
-		final[i] = f_strings;
-		f_strings += strlen(f_strings) + 1;
-	}
-
-	return final;
+	return symbols;
 }
 
 //--------------------------------------------------------------------------------------------------
