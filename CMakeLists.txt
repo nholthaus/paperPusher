@@ -17,6 +17,7 @@ PROJECT(PaperPusher)
 #	Qt Settings
 #-------------------------------------------------------------------------------
 
+set(BUILD_WITH_QT on)
 enable_testing(true)
 
 # Required Qt settings
@@ -26,9 +27,11 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 # disable warnings on the Qt sources
-add_compile_options("/experimental:external")
-add_compile_options("/external:env:QTDIR")
-add_compile_options("/external:W0")
+if (WIN32)
+	add_compile_options("/experimental:external")
+	add_compile_options("/external:env:QTDIR")
+	add_compile_options("/external:W0")
+endif (WIN32)
 
 # Setup the cmake prefix path so Qt can be found. Use the QTDIR variable if defined
 if(NOT DEFINED ENV{QTDIR})

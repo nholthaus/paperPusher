@@ -2,7 +2,7 @@
 #	CMAKE SETTINGS
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 set(QT_MINIMUM_VERSION 5.15.0)
 include(capitalize)
 
@@ -11,7 +11,7 @@ include(capitalize)
 #-------------------------------------------------------------------------------
 
 PROJECT(paperPusher)
-set(APPLICATION_NAME capitalize(${PROJECT_NAME}))
+set(APPLICATION_NAME capitalize (${PROJECT_NAME}))
 
 #-------------------------------------------------------------------------------
 #	SOURCE CODE
@@ -19,22 +19,22 @@ set(APPLICATION_NAME capitalize(${PROJECT_NAME}))
 
 # .cpp files
 list(APPEND SOURCE_FILES
-main.cpp
-mainWindow.h
-mainWindow.cpp
-)
+        main.cpp
+        mainWindow.h
+        mainWindow.cpp
+        )
 
 #-------------------------------------------------------------------------------
 #	ADDITIONAL LIBRARIES
 #-------------------------------------------------------------------------------
 
 list(APPEND LIBRARIES
-logerr
-Qt5::Core
-Qt5::Gui
-Qt5::Widgets
-Threads::Threads
-)
+        qlogerr
+        Qt5::Core
+        Qt5::Gui
+        Qt5::Widgets
+        Threads::Threads
+        )
 
 # Remove duplicate library dependencies. 
 list(REMOVE_DUPLICATES LIBRARIES)
@@ -62,8 +62,10 @@ INCLUDE(InstallRequiredSystemLibraries)
 #	DEPLOY QT DLLS
 #-------------------------------------------------------------------------------
 
-include(windeployqt)
-windeployqt(${PROJECT_NAME} bin)
+if (WIN32)
+    include(windeployqt)
+    windeployqt(${PROJECT_NAME} bin)
+endif (WIN32)
 
 #-------------------------------------------------------------------------------
 #	INSTALLER

@@ -1,9 +1,11 @@
 #include <logerr>
+#include <logerrGuiApplication.h>
 #include <mainWindow.h>
-#include <QStyleFactory>
 
-MAIN
-	
+int main(int argc, char** argv)
+{
+	LOGERR_GUI_APP_BEGIN
+
 	MainWindow w;
 
 	RUN_ONCE_STARTED(w.initialize(););
@@ -13,4 +15,5 @@ MAIN
 	RUN_ONCE_STARTED(LOGWARNING << "OMG Shits bad" << std::endl;);
 	RUN_ONCE_STARTED(LOGDEBUG << "Look no more bugs" << std::endl;);
 
-END_MAIN
+	LOGERR_GUI_APP_END
+}

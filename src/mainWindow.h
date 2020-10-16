@@ -52,7 +52,7 @@ protected:
 
 	std::thread m_thread1;
 	std::thread m_thread2;
-	
+	std::atomic_bool m_joinAll = false;
 
 };
 
