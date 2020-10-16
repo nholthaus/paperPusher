@@ -37,8 +37,6 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 	HANDLE          process;
 	DWORD           dwDisplacement;
 	IMAGEHLP_LINE64 line;
-	std::string     filename;
-	unsigned int    lineNumber;
 
 	process = GetCurrentProcess();
 
@@ -52,31 +50,50 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 	SymSetOptions(SYMOPT_LOAD_LINES);
 	line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
-	std::ostringstream value;
+	std::vector<std::string> symbolNames;
+	std::vector<ULONG64> addresses;
+	std::vector<std::string> fileNames;
 
-	for (i = 1; i < frames; i++)
+	for (i = 1; i < frames; ++i)
 	{
 		SymFromAddr(process, (DWORD64)(stack[i]), nullptr, symbol);
 		if (SymGetLineFromAddr64(process, symbol->Address, &dwDisplacement, &line))
 		{
-			filename   = line.FileName;
-			lineNumber = line.LineNumber;
+			std::string filename;
+			std::stringstream ss;
+			ss << line.FileName;
+			while (getline(ss, filename, '\\')) {};
+			fileNames.emplace_back(filename).append(":").append(std::to_string(line.LineNumber));
 		}
 		else
 		{
-			filename   = "??";
-			lineNumber = 0;
+			fileNames.emplace_back("??:0");
 		}
 
+		addresses.emplace_back(symbol->Address);
+		symbolNames.emplace_back(symbol->Name);
+	}
+
+	// get max filename length
+	int maxFilenameLength = 0;
+	for (auto& filename : fileNames)
+	{
+		if (filename.length() > maxFilenameLength)
+			maxFilenameLength = filename.length() + 1;	}
+
+	std::ostringstream value;
+
+	for (int i = 0; i < frames - 1; ++i)
+	{
 		value << std::right << std::setw(5) << "["
-		      << std::left << std::dec << std::setw(frames / 10 + 1) << (i - 1)
+		      << std::left << std::dec << std::setw(frames / 10 + 1) << (i)
 		      << std::left << std::setw(4) << "]"
 		      << std::left << std::setw(0) << "0x"
-		      << std::right << std::hex << std::setw(16) << std::setfill('0') << symbol->Address
+		      << std::right << std::hex << std::setw(16) << std::setfill('0') << addresses[i]
 		      << std::left << std::setw(0) << ": "
-		      << std::left << std::setw(120) << std::setfill(' ') << symbol->Name
+		      << std::left << std::setw(maxFilenameLength) << std::setfill(' ') << fileNames[i]
 		      << std::left << std::setw(0) << "| "
-		      << filename << ':' << lineNumber
+		      << std::left << symbolNames[i]
 		      << std::endl;
 	}
 
@@ -116,8 +133,8 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 	{
 		auto& [filename, functionName] = symbols[i];
 
-		if(filename.empty())
-			filename = "<no file>";
+		if (filename.empty())
+			filename = "??:0";
 
 		// if you see "Error: invalid pointer" here you probably need to`
 		// increase the size of FUNCTION_NAME_SIZE.

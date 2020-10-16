@@ -44,7 +44,7 @@ void MainWindow::initialize()
 	m_thread1 = std::thread([this]
 	                        { runThread1(); });
 	m_thread2 = std::thread([this]
-	                        { runThread1(); });
+	                        { runThread2(); });
 }
 
 void MainWindow::runThread1()
