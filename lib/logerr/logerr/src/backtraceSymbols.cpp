@@ -6,6 +6,9 @@
 
 // std
 #include <iostream>
+#include <sstream>
+#include <vector>
+#include <utility>
 
 //--------------------------------------------------------------------------------------------------
 //	findMatchingFile (public ) [static ]
@@ -65,6 +68,7 @@ asymbol** kstSlurpSymtab(bfd* abfd, const char* fileName)
 //--------------------------------------------------------------------------------------------------
 char** translateAddressesBuf(bfd* abfd, bfd_vma* addr, int numAddr, asymbol** syms)
 {
+	std::vector<std::pair<std::string, std::string>> addressBuffer;
 	char**  ret_buf = NULL;
 	int32_t total   = 0;
 
@@ -97,17 +101,21 @@ char** translateAddressesBuf(bfd* abfd, bfd_vma* addr, int numAddr, asymbol** sy
 			else
 			{
 
-				const char* name = desc.mFunctionname.data();
-				if (name == NULL || *name == '\0')
+				std::string& name     = desc.mFunctionname;
+				std::string& filename = desc.mFilename;
+
+				if (name.empty())
 					name = "??";
-				if (desc.mFilename.data() != NULL)
+				if (!desc.mFilename.empty())
 				{
-					char* h = strrchr(desc.mFilename.data(), '/');
-					if (h != NULL)
-						desc.mFilename = h + 1;
+					std::stringstream ss;
+					ss << desc.mFilename;
+					while (getline(ss, filename, '/')) {};
 				}
-				total += snprintf(buf, len, "%s:%u %s", !desc.mFilename.empty() ? desc.mFilename.data() : "??", desc.mLine, name) + 1;
-				// elog << "\"" << buf << "\"\n";
+
+				addressBuffer.emplace_back(filename, name);
+				total += snprintf(buf, len, "%s:%u %s", filename.empty() ? "??" : filename.data(), desc.mLine, name.data()) + 1;
+
 			}
 		}
 
@@ -243,6 +251,6 @@ void FileLineDesc::findAddressInSection(bfd* abfd, asection* section)
 
 	mFound = bfd_find_nearest_line(abfd, section, mSyms, (mPc - vma), (const char**) &pFilename, (const char**) &pFunctionname, &mLine);
 
-	if(pFilename) mFilename.assign(pFilename, strlen(pFilename));
-	if(pFunctionname) mFunctionname.assign(pFunctionname, strlen(pFunctionname));
+	if (pFilename) mFilename.assign(pFilename, strlen(pFilename));
+	if (pFunctionname) mFunctionname.assign(pFunctionname, strlen(pFunctionname));
 }
