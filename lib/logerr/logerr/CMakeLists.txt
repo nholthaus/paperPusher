@@ -139,6 +139,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARIES})
 
 # include directories
 set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR}")
+if (NOT WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_COMPILE_OPTIONS -g)
+endif ()
 
 #-------------------------------------------------------------------------------
 #	ADDITIONAL DEPENDENCIES

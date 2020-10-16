@@ -99,38 +99,31 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 	// resolve addresses into strings containing
 	auto&& symbols = backtraceSymbols(trace, frames);
 
-	// allocate string which will be filled with the de-mangled function name
-	char* demangledFunctionName = new char[FUNCTION_NAME_SIZE];
-
-	std::ostringstream value;
+	std::ostringstream value{};
 
 	// iterate over the returned symbol lines. skip the first, it is the
 	// address of this function.
 	for (int i = 1 + ignore; i < frames; i++)
 	{
 		auto& [filename, functionName] = symbols[i];
-		qDebug() << filename.data() << "," << functionName.data();
-
-		int    demanglerStatus;
-		size_t demangledNameLength;
+		int demanglerStatus            = 0;
 
 		// if you see "Error: invalid pointer" here you probably need to`
 		// increase the size of FUNCTION_NAME_SIZE.
-		char* ret = abi::__cxa_demangle(functionName.data(),
-		                                demangledFunctionName,
-		                                &demangledNameLength,
+		char* ret = abi::__cxa_demangle(functionName.c_str(),
+		                                nullptr,
+		                                nullptr,
 		                                &demanglerStatus);
 
-		if (demanglerStatus == 0)
+		if (demanglerStatus == 0 && ret)
 		{
-			functionName = ret;    // use possibly realloc()-ed string
 			value << std::right << std::setw(5) << "["
 			      << std::right << std::dec << std::setw(frames / 10 + 1) << (i - ignore)
 			      << std::left << std::setw(4) << "]"
 			      << std::left << std::setw(0) << "0x"
 			      << std::right << std::hex << std::setw(16) << std::setfill('0') << (unsigned long long) trace[i]
 			      << std::left << std::setw(0) << ": "
-			      << std::left << std::setw(60) << std::setfill(' ') << functionName
+			      << std::left << std::setw(60) << std::setfill(' ') << ret
 			      << std::left << std::setw(0) << "| ";
 		}
 		else if (!functionName.empty())
@@ -160,13 +153,12 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 		}
 
 		value << filename << std::endl;
+
+		if(ret) free(ret);
 	}
 
 	// store values
 	m_value = value.str();
-
-	// Clean up
-	delete[] demangledFunctionName;
 
 #endif
 }
