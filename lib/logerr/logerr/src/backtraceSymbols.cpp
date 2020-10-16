@@ -12,7 +12,7 @@
 //--------------------------------------------------------------------------------------------------
 int findMatchingFile(struct dl_phdr_info* info, size_t size, void* data)
 {
-	FileMatch* match = (FileMatch*)data;
+	FileMatch* match = (FileMatch*) data;
 
 	for (uint32_t i = 0; i < info->dlpi_phnum; i++)
 	{
@@ -22,11 +22,10 @@ int findMatchingFile(struct dl_phdr_info* info, size_t size, void* data)
 		{
 			ElfW(Addr) vaddr = phdr.p_vaddr + info->dlpi_addr;
 			ElfW(Addr) maddr = ElfW(Addr)(match->mAddress);
-			if ((maddr >= vaddr) &&
-				(maddr < vaddr + phdr.p_memsz))
+			if ((maddr >= vaddr) && (maddr < vaddr + phdr.p_memsz))
 			{
 				match->mFile = info->dlpi_name;
-				match->mBase = (void*)info->dlpi_addr;
+				match->mBase = (void*) info->dlpi_addr;
 				return 1;
 			}
 		}
@@ -45,12 +44,12 @@ asymbol** kstSlurpSymtab(bfd* abfd, const char* fileName)
 		return NULL;
 	}
 
-	asymbol** syms;
+	asymbol**    syms;
 	unsigned int size;
 
-	long symcount = bfd_read_minisymbols(abfd, false, (void**)&syms, &size);
+	long symcount = bfd_read_minisymbols(abfd, false, (void**) &syms, &size);
 	if (symcount == 0)
-		symcount = bfd_read_minisymbols(abfd, true, (void**)&syms, &size);
+		symcount = bfd_read_minisymbols(abfd, true, (void**) &syms, &size);
 
 	if (symcount < 0)
 	{
@@ -66,20 +65,20 @@ asymbol** kstSlurpSymtab(bfd* abfd, const char* fileName)
 //--------------------------------------------------------------------------------------------------
 char** translateAddressesBuf(bfd* abfd, bfd_vma* addr, int numAddr, asymbol** syms)
 {
-	char** ret_buf = NULL;
-	int32_t    total = 0;
+	char**  ret_buf = NULL;
+	int32_t total   = 0;
 
-	char   b;
-	char*  buf = &b;
-	int32_t    len = 0;
+	char    b;
+	char*   buf = &b;
+	int32_t len = 0;
 
 	for (uint32_t state = 0; state < 2; state++)
 	{
 		if (state == 1)
 		{
-			ret_buf = (char**)malloc(total + (sizeof(char*) * numAddr));
-			buf = (char*)(ret_buf + numAddr);
-			len = total;
+			ret_buf = (char**) malloc(total + (sizeof(char*) * numAddr));
+			buf     = (char*) (ret_buf + numAddr);
+			len     = total;
 		}
 
 		for (int32_t i = 0; i < numAddr; i++)
@@ -89,14 +88,14 @@ char** translateAddressesBuf(bfd* abfd, bfd_vma* addr, int numAddr, asymbol** sy
 			if (state == 1)
 				ret_buf[i] = buf;
 
-			bfd_map_over_sections(abfd, findAddressInSection, (void*)&desc);
+			bfd_map_over_sections(abfd, findAddressInSection, (void*) &desc);
 
 			if (!desc.mFound)
 			{
 				total += snprintf(buf, len, "[0x%llx] \?\? \?\?:0", (long long unsigned int) addr[i]) + 1;
-
 			}
-			else {
+			else
+			{
 
 				const char* name = desc.mFunctionname;
 				if (name == NULL || *name == '\0')
@@ -169,7 +168,7 @@ char** processFile(const char* fileName, bfd_vma* addr, int naddr)
 //--------------------------------------------------------------------------------------------------
 void findAddressInSection(bfd* abfd, asection* section, void* data)
 {
-	FileLineDesc* desc = (FileLineDesc*)data;
+	FileLineDesc* desc = (FileLineDesc*) data;
 	return desc->findAddressInSection(abfd, section);
 }
 
@@ -178,13 +177,13 @@ void findAddressInSection(bfd* abfd, asection* section, void* data)
 //--------------------------------------------------------------------------------------------------
 char** backtraceSymbols(void* const* addrList, int numAddr)
 {
-	char*** locations = (char***)alloca(sizeof(char**) * numAddr);
+	char*** locations = (char***) alloca(sizeof(char**) * numAddr);
 
 	// initialize the bfd library
 	bfd_init();
 
-	int total = 0;
-	uint32_t idx = numAddr;
+	int      total = 0;
+	uint32_t idx   = numAddr;
 	for (int32_t i = 0; i < numAddr; i++)
 	{
 		// find which executable, or library the symbol is from
@@ -206,8 +205,8 @@ char** backtraceSymbols(void* const* addrList, int numAddr)
 	}
 
 	// return all the file and line information for each address
-	char** final = (char**)malloc(total + (numAddr * sizeof(char*)));
-	char* f_strings = (char*)(final + numAddr);
+	char** final     = (char**) malloc(total + (numAddr * sizeof(char*)));
+	char*  f_strings = (char*) (final + numAddr);
 
 	for (int32_t i = 0; i < numAddr; i++)
 	{
@@ -239,7 +238,5 @@ void FileLineDesc::findAddressInSection(bfd* abfd, asection* section)
 	if (mPc >= (vma + size))
 		return;
 
-	mFound = bfd_find_nearest_line(abfd, section, mSyms, (mPc - vma),
-		(const char**)&mFilename, (const char**)&mFunctionname, &mLine);
+	mFound = bfd_find_nearest_line(abfd, section, mSyms, (mPc - vma), (const char**) &mFilename, (const char**) &mFunctionname, &mLine);
 }
-
