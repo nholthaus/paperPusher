@@ -61,20 +61,20 @@
 
 /// Place at the very beginning of the `main` function.
 #ifndef LOGERR_CONSOLE_APP_BEGIN
-#define LOGERR_CONSOLE_APP_BEGIN                                                                                               \
-	std::signal(SIGSEGV, stackTraceSIGSEGV);                                                                                   \
-                                                                                                                               \
-	int code       = 0;                                                                                                        \
-	g_mainThreadID = std::this_thread::get_id();                                                                               \
-                                                                                                                               \
-	LogFileWriter logFileWriter;                                                                                               \
-	LogStream     logStream(std::cout);                                                                                        \
-                                                                                                                               \
-	logStream.registerLogFunction(std::bind(&logFileWriter, &LogFileWriter::write));                                           \
-                                                                                                                               \
-	LOGINFO << logerr::printable(APPINFO::name()) << ' ' << logerr::printable(APPINFO::version()) << " Started." << std::endl; \
-                                                                                                                               \
-	try                                                                                                                        \
+#define LOGERR_CONSOLE_APP_BEGIN                                                         \
+	std::signal(SIGSEGV, stackTraceSIGSEGV);                                             \
+                                                                                         \
+	int code       = 0;                                                                  \
+	g_mainThreadID = std::this_thread::get_id();                                         \
+                                                                                         \
+	LogFileWriter logFileWriter;                                                         \
+	LogStream     logStream(std::cout);                                                  \
+                                                                                         \
+	logStream.registerLogFunction(std::bind(&logFileWriter, &LogFileWriter::write));     \
+                                                                                         \
+	LOGINFO << APPINFO::name() << ' ' << APPINFO::version() << " Started." << std::endl; \
+                                                                                         \
+	try                                                                                  \
 	{
 #endif
 

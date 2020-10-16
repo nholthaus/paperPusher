@@ -92,30 +92,30 @@ namespace logerr
 
 /// Place at the very beginning of the `main` function.
 #ifndef LOGERR_GUI_APP_BEGIN
-#define LOGERR_GUI_APP_BEGIN                                                                                                     \
-	std::signal(SIGSEGV, stackTraceSIGSEGVQt);                                                                                   \
-                                                                                                                                 \
-	int code       = 0;                                                                                                          \
-	g_mainThreadID = std::this_thread::get_id();                                                                                 \
-                                                                                                                                 \
-	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);                                                                     \
-                                                                                                                                 \
-	Application app(argc, argv);                                                                                                 \
-	app.setOrganizationName(QAPPINFO::organization());                                                                           \
-	app.setOrganizationDomain(QAPPINFO::organizationDomain());                                                                   \
-	app.setApplicationName(QAPPINFO::name());                                                                                    \
-	app.setApplicationVersion(QAPPINFO::version());                                                                              \
-                                                                                                                                 \
-	LogFileWriter logFileWriter;                                                                                                 \
-	LogDock*      logDock = new LogDock;                                                                                         \
-	LogStream     logStream(std::cout);                                                                                          \
-                                                                                                                                 \
-	logStream.registerLogFunction([&logFileWriter](std::string str) { logFileWriter.write(str); });                              \
-	logStream.registerLogFunction([&logDock](std::string str) { logDock->queueLogEntry(str); });                                  \
-                                                                                                                                 \
-	LOGINFO << logerr::printable(QAPPINFO::name()) << ' ' << logerr::printable(QAPPINFO::version()) << " Started." << std::endl; \
-                                                                                                                                 \
-	try                                                                                                                          \
+#define LOGERR_GUI_APP_BEGIN                                                                                           \
+	std::signal(SIGSEGV, stackTraceSIGSEGVQt);                                                                         \
+                                                                                                                       \
+	int code       = 0;                                                                                                \
+	g_mainThreadID = std::this_thread::get_id();                                                                       \
+                                                                                                                       \
+	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);                                                           \
+                                                                                                                       \
+	Application app(argc, argv);                                                                                       \
+	app.setOrganizationName(QAPPINFO::organization());                                                                 \
+	app.setOrganizationDomain(QAPPINFO::organizationDomain());                                                         \
+	app.setApplicationName(QAPPINFO::name());                                                                          \
+	app.setApplicationVersion(QAPPINFO::version());                                                                    \
+                                                                                                                       \
+	LogFileWriter logFileWriter;                                                                                       \
+	LogDock*      logDock = new LogDock;                                                                               \
+	LogStream     logStream(std::cout);                                                                                \
+                                                                                                                       \
+	logStream.registerLogFunction([&logFileWriter](std::string str) { logFileWriter.write(str); });                    \
+	logStream.registerLogFunction([&logDock](std::string str) { logDock->queueLogEntry(str); });                       \
+                                                                                                                       \
+	LOGINFO << QAPPINFO::name().toStdString() << ' ' << QAPPINFO::version().toStdString() << " Started." << std::endl; \
+                                                                                                                       \
+	try                                                                                                                \
 	{
 #endif
 
