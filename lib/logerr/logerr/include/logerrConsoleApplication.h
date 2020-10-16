@@ -81,6 +81,13 @@
 /// Place at the very end of the `main` function.
 #ifndef LOGERR_CONSOLE_APP_END
 #define LOGERR_CONSOLE_APP_END                                                                           \
+	/* rethrow exceptions from threads*/                                                                 \
+	std::exception_ptr exceptionPtr = g_exceptionPtr;                                                    \
+	g_exceptionPtr                  = nullptr;                                                           \
+                                                                                                         \
+	if (exceptionPtr)                                                                                    \
+	{                                                                                                    \
+		std::rethrow_exception(exceptionPtr);                                                            \
 	}                                                                                                    \
 	catch (StackTraceException & e)                                                                      \
 	{                                                                                                    \

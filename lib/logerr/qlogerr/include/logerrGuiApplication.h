@@ -52,11 +52,11 @@
 #include <QTimer>
 
 #include <Application.h>
+#include <LogDock.h>
 #include <LogFileWriter.h>
 #include <LogStream.h>
 #include <StackTraceException.h>
 #include <StackTraceSIGSEGVQt.h>
-#include <logDock.h>
 #include <qappinfo.h>
 #include <timestampLite.h>
 
