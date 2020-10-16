@@ -110,8 +110,8 @@ namespace logerr
 	LogDock*      logDock = new LogDock;                                                                               \
 	LogStream     logStream(std::cout);                                                                                \
                                                                                                                        \
-	logStream.registerLogFunction([&logFileWriter](std::string str) { logFileWriter.write(str); });                    \
-	logStream.registerLogFunction([&logDock](std::string str) { logDock->queueLogEntry(str); });                       \
+	logStream.registerLogFunction("logFileWriter", [&logFileWriter](std::string str) { logFileWriter.write(str); });   \
+	logStream.registerLogFunction("logDock", [&logDock](std::string str) { logDock->queueLogEntry(str); });            \
                                                                                                                        \
 	LOGINFO << QAPPINFO::name().toStdString() << ' ' << QAPPINFO::version().toStdString() << " Started." << std::endl; \
                                                                                                                        \
@@ -125,6 +125,7 @@ namespace logerr
 	auto mw = logerr::getMainWindow();                                                               \
 	if (mw) mw->addDockWidget(Qt::BottomDockWidgetArea, logDock);                                    \
 	app.exec();                                                                                      \
+	logStream.unregisterLogFunction("logDock");                                                      \
 	}                                                                                                \
 	catch (StackTraceException & e)                                                                  \
 	{                                                                                                \
