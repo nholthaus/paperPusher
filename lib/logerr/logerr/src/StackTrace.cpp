@@ -74,7 +74,7 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 		      << std::left << std::setw(0) << "0x"
 		      << std::right << std::hex << std::setw(16) << std::setfill('0') << symbol->Address
 		      << std::left << std::setw(0) << ": "
-		      << std::left << std::setw(60) << std::setfill(' ') << symbol->Name
+		      << std::left << std::setw(120) << std::setfill(' ') << symbol->Name
 		      << std::left << std::setw(0) << "| "
 		      << filename << ':' << lineNumber
 		      << std::endl;
@@ -99,6 +99,15 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 	// resolve addresses into strings containing
 	auto&& symbols = backtraceSymbols(trace, frames);
 
+	// get max filename length
+	int maxFilenameLength = 0;
+	for (auto& [filename, functionName] : symbols)
+	{
+		if (filename.length() > maxFilenameLength)
+			maxFilenameLength = filename.length() + 1;
+	}
+
+	// set up a string stream to write to
 	std::ostringstream value{};
 
 	// iterate over the returned symbol lines. skip the first, it is the
@@ -106,14 +115,17 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 	for (int i = 1 + ignore; i < frames; i++)
 	{
 		auto& [filename, functionName] = symbols[i];
-		int demanglerStatus            = 0;
+
+		if(filename.empty())
+			filename = "<no file>";
 
 		// if you see "Error: invalid pointer" here you probably need to`
 		// increase the size of FUNCTION_NAME_SIZE.
-		char* ret = abi::__cxa_demangle(functionName.c_str(),
-		                                nullptr,
-		                                nullptr,
-		                                &demanglerStatus);
+		int   demanglerStatus = 0;
+		char* ret             = abi::__cxa_demangle(functionName.c_str(),
+                                        nullptr,
+                                        nullptr,
+                                        &demanglerStatus);
 
 		if (demanglerStatus == 0 && ret)
 		{
@@ -123,8 +135,10 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 			      << std::left << std::setw(0) << "0x"
 			      << std::right << std::hex << std::setw(16) << std::setfill('0') << (unsigned long long) trace[i]
 			      << std::left << std::setw(0) << ": "
-			      << std::left << std::setw(60) << std::setfill(' ') << ret
-			      << std::left << std::setw(0) << "| ";
+			      << std::left << std::setw(maxFilenameLength) << std::setfill(' ') << filename
+			      << std::left << std::setw(0) << "| "
+			      << std::left << ret
+			      << std::endl;
 		}
 		else if (!functionName.empty())
 		{
@@ -136,8 +150,10 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 			      << std::left << std::setw(0) << "0x"
 			      << std::right << std::hex << std::setw(16) << std::setfill('0') << (unsigned long long) trace[i]
 			      << std::left << std::setw(0) << ": "
-			      << std::left << std::setw(60) << std::setfill(' ') << functionName
-			      << std::left << std::setw(0) << "| ";
+			      << std::left << std::setw(maxFilenameLength) << std::setfill(' ') << filename
+			      << std::left << std::setw(0) << "| "
+			      << std::left << functionName
+			      << std::endl;
 		}
 		else
 		{
@@ -148,13 +164,13 @@ StackTrace::StackTrace(unsigned int ignore /*= 0*/)
 			      << std::left << std::setw(0) << "0x"
 			      << std::right << std::hex << std::setw(16) << std::setfill('0') << (unsigned long long) trace[i]
 			      << std::left << std::setw(0) << ": "
-			      << std::left << std::setw(60) << std::setfill(' ') << "<no symbol found>"
-			      << std::left << std::setw(0) << "| ";
+			      << std::left << std::setw(maxFilenameLength) << std::setfill(' ') << filename
+			      << std::left << std::setw(0) << "| "
+			      << std::left << "<no symbol found>"
+			      << std::endl;
 		}
 
-		value << filename << std::endl;
-
-		if(ret) free(ret);
+		if (ret) free(ret);
 	}
 
 	// store values
