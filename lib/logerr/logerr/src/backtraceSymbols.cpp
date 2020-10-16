@@ -225,21 +225,21 @@ char** backtraceSymbols(void* const* addrList, int numAddr)
 //--------------------------------------------------------------------------------------------------
 void FileLineDesc::findAddressInSection(bfd* abfd, asection* section)
 {
-//	if (mFound)
-//		return;
-//
-//	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0)
-//		return;
-//
-//	bfd_vma vma = bfd_get_section_vma(abfd, section);
-//	if (mPc < vma)
-//		return;
-//
-//	bfd_size_type size = bfd_section_size(abfd, section);
-//	if (mPc >= (vma + size))
-//		return;
-//
-//	mFound = bfd_find_nearest_line(abfd, section, mSyms, (mPc - vma),
-//		(const char**)&mFilename, (const char**)&mFunctionname, &mLine);
+	if (mFound)
+		return;
+
+	if ((bfd_section_flags(section) & SEC_ALLOC) == 0)
+		return;
+
+	bfd_vma vma = bfd_section_vma(section);
+	if (mPc < vma)
+		return;
+
+	bfd_size_type size = bfd_section_size(section);
+	if (mPc >= (vma + size))
+		return;
+
+	mFound = bfd_find_nearest_line(abfd, section, mSyms, (mPc - vma),
+		(const char**)&mFilename, (const char**)&mFunctionname, &mLine);
 }
 
