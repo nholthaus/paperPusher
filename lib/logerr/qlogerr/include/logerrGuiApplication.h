@@ -121,32 +121,32 @@ namespace logerr
 
 /// Place at the very end of the `main` function.
 #ifndef LOGERR_GUI_APP_END
-#define LOGERR_GUI_APP_END                                                                                \
-	auto mw = logerr::getMainWindow();                                                                    \
-	if (mw) mw->addDockWidget(Qt::BottomDockWidgetArea, logDock);                                         \
-	app.exec();                                                                                           \
-	}                                                                                                     \
-	catch (StackTraceException & e)                                                                       \
-	{                                                                                                     \
-		LOGERR << e.what() << std::endl;                                                                  \
-		LOGINFO << logerr::printable(QAPPINFO::name()) << " exiting due to fatal error..." << std::endl;  \
-		code = 2;                                                                                         \
-	}                                                                                                     \
-	catch (std::exception & e)                                                                            \
-	{                                                                                                     \
-		LOGERR << "ERROR: Caught unhandled exception -  " << e.what() << std::endl;                       \
-		LOGINFO << logerr::printable(QAPPINFO::name()) << " exiting due to fatal error..." << std::endl;  \
-		code = 2;                                                                                         \
-	}                                                                                                     \
-	catch (...)                                                                                           \
-	{                                                                                                     \
-		LOGERR << "ERROR: An unknown fatal error occurred. " << std::endl;                                \
-		LOGINFO << logerr::printable(QAPPINFO::name()) << " exiting due to fatal error..." << std::endl;  \
-		code = 2;                                                                                         \
-	}                                                                                                     \
-                                                                                                          \
-	if (code == 0) LOGINFO << logerr::printable(QAPPINFO::name()) << " Exited Successfully" << std::endl; \
-                                                                                                          \
+#define LOGERR_GUI_APP_END                                                                           \
+	auto mw = logerr::getMainWindow();                                                               \
+	if (mw) mw->addDockWidget(Qt::BottomDockWidgetArea, logDock);                                    \
+	app.exec();                                                                                      \
+	}                                                                                                \
+	catch (StackTraceException & e)                                                                  \
+	{                                                                                                \
+		LOGERR << e.what() << std::endl;                                                             \
+		LOGINFO << QAPPINFO::name().toStdString() << " exiting due to fatal error..." << std::endl;  \
+		code = 2;                                                                                    \
+	}                                                                                                \
+	catch (std::exception & e)                                                                       \
+	{                                                                                                \
+		LOGERR << "ERROR: Caught unhandled exception -  " << e.what() << std::endl;                  \
+		LOGINFO << QAPPINFO::name().toStdString() << " exiting due to fatal error..." << std::endl;  \
+		code = 2;                                                                                    \
+	}                                                                                                \
+	catch (...)                                                                                      \
+	{                                                                                                \
+		LOGERR << "ERROR: An unknown fatal error occurred. " << std::endl;                           \
+		LOGINFO << QAPPINFO::name().toStdString() << " exiting due to fatal error..." << std::endl;  \
+		code = 2;                                                                                    \
+	}                                                                                                \
+                                                                                                     \
+	if (code == 0) LOGINFO << QAPPINFO::name().toStdString() << " Exited Successfully" << std::endl; \
+                                                                                                     \
 	return code;
 #endif
 
