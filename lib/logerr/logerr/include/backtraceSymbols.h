@@ -14,6 +14,8 @@
 #include <execinfo.h>
 #include <link.h>
 
+#include <string>
+
 class FileMatch
 {
 public:
@@ -42,8 +44,8 @@ public:
 	void findAddressInSection(bfd* abfd, asection* section);
 
 	bfd_vma      mPc;
-	char*        mFilename;
-	char*        mFunctionname;
+	std::string  mFilename;
+	std::string  mFunctionname;
 	unsigned int mLine;
 	int          mFound;
 	asymbol**    mSyms;

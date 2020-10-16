@@ -97,16 +97,16 @@ char** translateAddressesBuf(bfd* abfd, bfd_vma* addr, int numAddr, asymbol** sy
 			else
 			{
 
-				const char* name = desc.mFunctionname;
+				const char* name = desc.mFunctionname.data();
 				if (name == NULL || *name == '\0')
 					name = "??";
-				if (desc.mFilename != NULL)
+				if (desc.mFilename.data() != NULL)
 				{
-					char* h = strrchr(desc.mFilename, '/');
+					char* h = strrchr(desc.mFilename.data(), '/');
 					if (h != NULL)
 						desc.mFilename = h + 1;
 				}
-				total += snprintf(buf, len, "%s:%u %s", desc.mFilename ? desc.mFilename : "??", desc.mLine, name) + 1;
+				total += snprintf(buf, len, "%s:%u %s", !desc.mFilename.empty() ? desc.mFilename.data() : "??", desc.mLine, name) + 1;
 				// elog << "\"" << buf << "\"\n";
 			}
 		}
@@ -238,5 +238,11 @@ void FileLineDesc::findAddressInSection(bfd* abfd, asection* section)
 	if (mPc >= (vma + size))
 		return;
 
-	mFound = bfd_find_nearest_line(abfd, section, mSyms, (mPc - vma), (const char**) &mFilename, (const char**) &mFunctionname, &mLine);
+	char* pFilename;
+	char* pFunctionname;
+
+	mFound = bfd_find_nearest_line(abfd, section, mSyms, (mPc - vma), (const char**) &pFilename, (const char**) &pFunctionname, &mLine);
+
+	if(pFilename) mFilename.assign(pFilename, strlen(pFilename));
+	if(pFunctionname) mFunctionname.assign(pFunctionname, strlen(pFunctionname));
 }
