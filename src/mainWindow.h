@@ -46,8 +46,12 @@ public:
 	virtual ~MainWindow();
 
 	void initialize();
-	
-	
+
+protected:
+
+	void runThread1();
+	void runThread2();
+
 protected:
 
 	std::thread m_thread1;
