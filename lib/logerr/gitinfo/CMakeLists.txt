@@ -18,7 +18,7 @@ PROJECT(gitinfo)
 # a dummy output that's not actually produced, in order
 # to force version.cmake to always be re-run before the build
 ADD_CUSTOM_TARGET(
-        gitInfo-cfg ALL
+        gitinfo-cfg ALL
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/gitinfo.h.in
         ${CMAKE_CURRENT_BINARY_DIR}/gitinfo.h.in

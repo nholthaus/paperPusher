@@ -55,6 +55,12 @@ if (NOT WIN32)
     if (NOT Bfd_FOUND)
         message(FATAL_ERROR "Bfd not found. Install binutils using your systems package manager (on ubuntu: `sudo apt install binutils-dev libiberty-dev`)")
     endif ()
+
+    include(CheckCXXSymbolExists)
+    check_cxx_symbol_exists(bfd_section_flags "bfd.h" HAS_BFD_SECTION_FLAGS)
+    if(NOT HAS_BFD_SECTION_FLAGS)
+        add_compile_definitions(USE_OLD_BFD)
+    endif()
 endif ()
 
 #-------------------------------------------------------------------------------
@@ -77,7 +83,9 @@ if (BUILD_WITH_QT)
     list(APPEND LIBRARIES Qt5::Core)
 endif (BUILD_WITH_QT)
 
-list(APPEND LIBRARIES Threads::Threads)
+list(APPEND LIBRARIES
+        gitinfo
+        Threads::Threads)
 
 #-------------------------------------------------------------------------------
 #	GENERATE EXECUTABLE
@@ -101,9 +109,3 @@ if (WIN32)
 else ()
     set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_COMPILE_OPTIONS -g)
 endif ()
-
-#-------------------------------------------------------------------------------
-#	ADDITIONAL DEPENDENCIES
-#-------------------------------------------------------------------------------
-
-add_dependencies(${PROJECT_NAME} gitinfo)
